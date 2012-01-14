@@ -1,0 +1,9 @@
+syntax: glob
+.svn
+.idea
+build
+dist
+*.pyc
+*.pyo
+*.sublime-*
+

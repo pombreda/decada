@@ -1,0 +1,852 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Deca Package &mdash; Sampo 0.9a documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Sampo 0.9a documentation" href="index.html" />
+    <link rel="up" title="List of all public modules in Sampo" href="modules.html" />
+    <link rel="next" title="DefaultShape Module" href="DefaultShape.html" />
+    <link rel="prev" title="List of all public modules in Sampo" href="modules.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="DefaultShape.html" title="DefaultShape Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="List of all public modules in Sampo"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Sampo 0.9a documentation</a> &raquo;</li>
+          <li><a href="modules.html" accesskey="U">List of all public modules in Sampo</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="deca-package">
+<h1>Deca Package<a class="headerlink" href="#deca-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#module-Deca" title="Deca"><tt class="xref py py-mod docutils literal"><span class="pre">Deca</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-Deca"></span><dl class="attribute">
+<dt id="Deca.Object">
+<tt class="descclassname">Deca.</tt><tt class="descname">Object</tt><a class="headerlink" href="#Deca.Object" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">DecaObject</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.Link">
+<tt class="descclassname">Deca.</tt><tt class="descname">Link</tt><a class="headerlink" href="#Deca.Link" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">DecaLink</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.Attribute">
+<tt class="descclassname">Deca.</tt><tt class="descname">Attribute</tt><a class="headerlink" href="#Deca.Attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">DecaAttr</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World">
+<tt class="descclassname">Deca.</tt><tt class="descname">World</tt><a class="headerlink" href="#Deca.World" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">DecaWorld</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.Layer">
+<tt class="descclassname">Deca.</tt><tt class="descname">Layer</tt><a class="headerlink" href="#Deca.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">DecaLayer</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Deca.Attribute">
+<span id="attribute-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Attribute</span></tt> Module<a class="headerlink" href="#module-Deca.Attribute" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Deca.Attribute.DecaAttr">
+<em class="property">class </em><tt class="descclassname">Deca.Attribute.</tt><tt class="descname">DecaAttr</tt><a class="headerlink" href="#Deca.Attribute.DecaAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>An DecaObject&#8217;s attribute</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Deca.Layer">
+<span id="layer-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Layer</span></tt> Module<a class="headerlink" href="#module-Deca.Layer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Deca.Layer.DecaLayer">
+<em class="property">class </em><tt class="descclassname">Deca.Layer.</tt><tt class="descname">DecaLayer</tt><big>(</big><em>world</em>, <em>name</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="Deca.Layer.DecaLayer.AddLink">
+<tt class="descname">AddLink</tt><big>(</big><em>lnk</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.AddLink" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.AddLinkShape">
+<tt class="descname">AddLinkShape</tt><big>(</big><em>lnk</em>, <em>shapeTmpl=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.AddLinkShape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add link-shape information to the layer.
+ShapeTmpl can be given to describe shape&#8217;s paramenters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lnk</strong> &#8211; <a class="reference internal" href="#module-Deca.Link" title="Deca.Link"><tt class="xref py py-class docutils literal"><span class="pre">Deca.Link</span></tt></a> to add shape</li>
+<li><strong>shapeTmpl</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">Deca.Shape</span></tt> describes the drawing parameters</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-class docutils literal"><span class="pre">Deca.Shape</span></tt> of the created shape</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.AddObject">
+<tt class="descname">AddObject</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.AddObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.AddObjectShape">
+<tt class="descname">AddObjectShape</tt><big>(</big><em>obj</em>, <em>xpos=None</em>, <em>ypos=None</em>, <em>shapeTmpl=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.AddObjectShape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add shape information to the layer. If coordinates are None, random position
+will be selected. ShapeTmpl can be given to describe shape&#8217;s paramenters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obj</strong> &#8211; <a class="reference internal" href="#module-Deca.Object" title="Deca.Object"><tt class="xref py py-class docutils literal"><span class="pre">Deca.Object</span></tt></a> to add shape</li>
+<li><strong>xpos</strong> &#8211; X coordinate of the shape&#8217;s center</li>
+<li><strong>ypos</strong> &#8211; Y coordinate of the shape&#8217;s center</li>
+<li><strong>shapeTmpl</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">Deca.Shape</span></tt> describes the drawing parameters</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-class docutils literal"><span class="pre">Deca.Shape</span></tt> of the created shape</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.Clear">
+<tt class="descname">Clear</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.Clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.ClearShapes">
+<tt class="descname">ClearShapes</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.ClearShapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.CreateLink">
+<tt class="descname">CreateLink</tt><big>(</big><em>obj_from</em>, <em>obj_to</em>, <em>direct=False</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.CreateLink" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.CreateObject">
+<tt class="descname">CreateObject</tt><big>(</big><em>sample=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.CreateObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.ExecuteEngine">
+<tt class="descname">ExecuteEngine</tt><big>(</big><em>name</em>, <em>dict=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.ExecuteEngine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetEngines">
+<tt class="descname">GetEngines</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetEngines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetLinks">
+<tt class="descname">GetLinks</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetLinks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetObject">
+<tt class="descname">GetObject</tt><big>(</big><em>oid</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetObjects">
+<tt class="descname">GetObjects</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetObjects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetObjectsIDs">
+<tt class="descname">GetObjectsIDs</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetObjectsIDs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetPropList">
+<tt class="descname">GetPropList</tt><big>(</big><em>holder=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetPropList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetShape">
+<tt class="descname">GetShape</tt><big>(</big><em>shp_id</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetShape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns shape for the given identifier.
+If such shape not in the shapes list, the dummy shape returned</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.GetViewOption">
+<tt class="descname">GetViewOption</tt><big>(</big><em>name</em>, <em>defvalue</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.GetViewOption" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.Layer.DecaLayer.Modified">
+<tt class="descname">Modified</tt><a class="headerlink" href="#Deca.Layer.DecaLayer.Modified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.ReflectTo">
+<tt class="descname">ReflectTo</tt><big>(</big><em>dstLayer</em>, <em>objFilter</em>, <em>lnkFilter</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.ReflectTo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.RemoveLink">
+<tt class="descname">RemoveLink</tt><big>(</big><em>lnk</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.RemoveLink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes given link object(s) from the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.RemoveObject">
+<tt class="descname">RemoveObject</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.RemoveObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.RemoveObjectLinks">
+<tt class="descname">RemoveObjectLinks</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.RemoveObjectLinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes links for the given object.
+Remove links that starts or finish at the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> &#8211; <ul class="simple">
+<li>Object ID or Object instance to remove links</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaLayer.SetViewOption">
+<tt class="descname">SetViewOption</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaLayer.SetViewOption" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Deca.Layer.DecaLayerStorage">
+<em class="property">class </em><tt class="descclassname">Deca.Layer.</tt><tt class="descname">DecaLayerStorage</tt><a class="headerlink" href="#Deca.Layer.DecaLayerStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">persistent.Persistent</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="Deca.Layer.DecaRepo">
+<em class="property">class </em><tt class="descclassname">Deca.Layer.</tt><tt class="descname">DecaRepo</tt><big>(</big><em>world</em>, <em>name</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="Deca.Layer.DecaRepo.AddObject">
+<tt class="descname">AddObject</tt><big>(</big><em>sample=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.AddObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.AddTemplate">
+<tt class="descname">AddTemplate</tt><big>(</big><em>name</em>, <em>copy=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.AddTemplate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetObject">
+<tt class="descname">GetObject</tt><big>(</big><em>oid</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetObjects">
+<tt class="descname">GetObjects</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetObjects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetObjectsIDs">
+<tt class="descname">GetObjectsIDs</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetObjectsIDs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetPropList">
+<tt class="descname">GetPropList</tt><big>(</big><em>holder=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetPropList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetTemplate">
+<tt class="descname">GetTemplate</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetTemplate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetTemplateByName">
+<tt class="descname">GetTemplateByName</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetTemplateByName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetTemplates">
+<tt class="descname">GetTemplates</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetTemplates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetTemplatesIDs">
+<tt class="descname">GetTemplatesIDs</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetTemplatesIDs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.GetTemplatesNames">
+<tt class="descname">GetTemplatesNames</tt><big>(</big><em>filter=None</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.GetTemplatesNames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.Layer.DecaRepo.ID_DefaultTemplate">
+<tt class="descname">ID_DefaultTemplate</tt><em class="property"> = UUID('859b48d4-9ad2-39d6-a36e-81f8ab154a5d')</em><a class="headerlink" href="#Deca.Layer.DecaRepo.ID_DefaultTemplate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.LazyReindex">
+<tt class="descname">LazyReindex</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.LazyReindex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.RemoveObject">
+<tt class="descname">RemoveObject</tt><big>(</big><em>tid</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.RemoveObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Layer.DecaRepo.RemoveTemplate">
+<tt class="descname">RemoveTemplate</tt><big>(</big><em>tid</em><big>)</big><a class="headerlink" href="#Deca.Layer.DecaRepo.RemoveTemplate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Deca.Layer.DecaRepoStorage">
+<em class="property">class </em><tt class="descclassname">Deca.Layer.</tt><tt class="descname">DecaRepoStorage</tt><a class="headerlink" href="#Deca.Layer.DecaRepoStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">persistent.Persistent</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Deca.Link">
+<span id="link-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Link</span></tt> Module<a class="headerlink" href="#module-Deca.Link" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Deca.Link.DecaLink">
+<em class="property">class </em><tt class="descclassname">Deca.Link.</tt><tt class="descname">DecaLink</tt><big>(</big><em>obj_start=None</em>, <em>obj_fin=None</em>, <em>direct=False</em><big>)</big><a class="headerlink" href="#Deca.Link.DecaLink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">persistent.Persistent</span></tt></p>
+<p>A link between two objects.</p>
+<p>Link has three mandatory properties:</p>
+<ul class="simple">
+<li><strong>StartObject</strong> - the object&#8217;s identifier (<tt class="xref py py-class docutils literal"><span class="pre">UUID</span></tt>) for the starting point</li>
+<li><strong>FinishObject</strong> - the object&#8217;s identifier (<tt class="xref py py-class docutils literal"><span class="pre">UUID</span></tt>) for the finishing point</li>
+<li><strong>Directional</strong> - does this Link has diretion</li>
+</ul>
+<p>Also, link can have any set of the properties. Be aware that the Link controls mutation only the properties list itself.
+If you put mutable object into the Link&#8217;s property and then change such object, the Link information can be unchanged. Use the
+<a class="reference internal" href="#Deca.Link.DecaLink.Modified" title="Deca.Link.DecaLink.Modified"><tt class="xref py py-attr docutils literal"><span class="pre">Modified</span></tt></a> property to notify the Link about changes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj_start</strong> &#8211; object&#8217;s identifier (<tt class="xref py py-class docutils literal"><span class="pre">UUID</span></tt>) for the starting point</li>
+<li><strong>obj_fin</strong> &#8211; object&#8217;s identifier (<tt class="xref py py-class docutils literal"><span class="pre">UUID</span></tt>) for the finishing point</li>
+<li><strong>direct</strong> &#8211; is this link directional or none</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="Deca.Link.DecaLink.BuildID">
+<em class="property">static </em><tt class="descname">BuildID</tt><big>(</big><em>obj_start=None</em>, <em>obj_fin=None</em><big>)</big><a class="headerlink" href="#Deca.Link.DecaLink.BuildID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Satatic method to calculate link ID withou link creation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj_start</strong> &#8211; object&#8217;s identifier (<tt class="xref py py-class docutils literal"><span class="pre">UUID</span></tt>) for the starting point</li>
+<li><strong>obj_fin</strong> &#8211; object&#8217;s identifier (<tt class="xref py py-class docutils literal"><span class="pre">UUID</span></tt>) for the finishing point</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.Link.DecaLink.ID">
+<tt class="descname">ID</tt><a class="headerlink" href="#Deca.Link.DecaLink.ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Link&#8217;s identifier.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.Link.DecaLink.Modified">
+<tt class="descname">Modified</tt><a class="headerlink" href="#Deca.Link.DecaLink.Modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this link modifyed sinece extracted from DB</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Link.DecaLink.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Link.DecaLink.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates shallow copy of the link.</p>
+<p><strong>Note:</strong> both new and original links will have same identifiers!</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Deca.Object">
+<span id="object-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Object</span></tt> Module<a class="headerlink" href="#module-Deca.Object" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Deca.Object.DecaObject">
+<em class="property">class </em><tt class="descclassname">Deca.Object.</tt><tt class="descname">DecaObject</tt><big>(</big><em>id=None</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">persistent.Persistent</span></tt></p>
+<p>A generic DECA object</p>
+<dl class="method">
+<dt id="Deca.Object.DecaObject.ExecuteEngine">
+<tt class="descname">ExecuteEngine</tt><big>(</big><em>name</em>, <em>layer</em>, <em>shape=None</em>, <em>dict=None</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.ExecuteEngine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.GetAttr">
+<tt class="descname">GetAttr</tt><big>(</big><em>name</em>, <em>default=None</em>, <em>priority=0</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.GetAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the attribute value. For the reflects the priority may points that the base value must be given.
+If value absent in desired location other locations will be scanned. Finnaly, the default value will be returned</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.GetEngines">
+<tt class="descname">GetEngines</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.GetEngines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.GetPropList">
+<tt class="descname">GetPropList</tt><big>(</big><em>holder=None</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.GetPropList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.GetShape">
+<tt class="descname">GetShape</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.GetShape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.GetTitle">
+<tt class="descname">GetTitle</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.GetTitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the title of the object. If the Title Attribute defined, it&#8217;s value will be returned.
+Else if Tag defined, it&#8217;s value will be returned. Else the object&#8217;s ID will be returned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.ReflectTo">
+<tt class="descname">ReflectTo</tt><big>(</big><em>dstLayer</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.ReflectTo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.SetAttr">
+<tt class="descname">SetAttr</tt><big>(</big><em>name</em>, <em>value</em>, <em>location=0</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.SetAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the attribute value in desired location.</p>
+<p><strong>Note:</strong> if the object isn&#8217;t the reflect, attribute will be stored locally</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaObject.copy">
+<tt class="descname">copy</tt><big>(</big><em>newID</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaObject.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Deca.Object.DecaShape">
+<em class="property">class </em><tt class="descclassname">Deca.Object.</tt><tt class="descname">DecaShape</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaShape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">persistent.Persistent</span></tt></p>
+<dl class="method">
+<dt id="Deca.Object.DecaShape.GetRegionName">
+<tt class="descname">GetRegionName</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.Object.DecaShape.GetRegionName" title="Permalink to this definition">¶</a></dt>
+<dd><p>For compatibility with olg.Shape usage</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.Object.DecaShape.copy">
+<tt class="descname">copy</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaShape.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Deca.Object.DecaTemplate">
+<em class="property">class </em><tt class="descclassname">Deca.Object.</tt><tt class="descname">DecaTemplate</tt><big>(</big><em>id=None</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">persistent.Persistent</span></tt></p>
+<dl class="method">
+<dt id="Deca.Object.DecaTemplate.copy">
+<tt class="descname">copy</tt><big>(</big><em>newID</em><big>)</big><a class="headerlink" href="#Deca.Object.DecaTemplate.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Deca.Utility">
+<span id="utility-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Utility</span></tt> Module<a class="headerlink" href="#module-Deca.Utility" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Deca.Utility.CompileCode">
+<tt class="descclassname">Deca.Utility.</tt><tt class="descname">CompileCode</tt><big>(</big><em>text</em>, <em>modname='_internal_co_mod'</em><big>)</big><a class="headerlink" href="#Deca.Utility.CompileCode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compiles given strin as Python code and place resulting code-object into the module with given name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">module</span></tt> object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body">Any type of <tt class="xref py py-class docutils literal"><span class="pre">Exceptions</span></tt> produced by compilation process</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="Deca.Utility.Filter">
+<tt class="descclassname">Deca.Utility.</tt><tt class="descname">Filter</tt><big>(</big><em>func</em>, <em>xs</em><big>)</big><a class="headerlink" href="#Deca.Utility.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filtering iterable object by applying the functor to each element</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>func</strong> &#8211; functor to use in if statement for filter generator</li>
+<li><strong>xs</strong> &#8211; iterable to be filtered</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> for dicts and <tt class="xref py py-class docutils literal"><span class="pre">PersistentMapping</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">set</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">frozenset</span></tt> for
+the corresponding arguments and <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt> for other argument&#8217;s types</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="Deca.Utility.GetModule">
+<tt class="descclassname">Deca.Utility.</tt><tt class="descname">GetModule</tt><big>(</big><em>pkg_name</em><big>)</big><a class="headerlink" href="#Deca.Utility.GetModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search given name in sys.modules dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">module</span></tt> object or <em>None</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="Deca.Utility.ImportPackage">
+<tt class="descclassname">Deca.Utility.</tt><tt class="descname">ImportPackage</tt><big>(</big><em>pkg_name</em>, <em>pkg_path</em>, <em>type=imp.PKG_DIRECTORY</em><big>)</big><a class="headerlink" href="#Deca.Utility.ImportPackage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements importing for the packages and source files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pkg_name</strong> &#8211; name of the package in <em>sys.modules</em> dictionary</li>
+<li><strong>pkg_path</strong> &#8211; path to package directory or file name to import</li>
+<li><strong>type</strong> (<em>imp.PKG_DIRECTORY, imp.imp.PY_COMPILED, imp.imp.PY_SOURCE</em>) &#8211; type of source to import</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Deca.World">
+<span id="world-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">World</span></tt> Module<a class="headerlink" href="#module-Deca.World" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Deca.World.DecaWorld">
+<em class="property">class </em><tt class="descclassname">Deca.World.</tt><tt class="descname">DecaWorld</tt><big>(</big><em>filename=None</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DECA world object.</p>
+<p>This object controls the database and the file structure for the DECA world.
+The constructor argument <em>filename</em> allows restore previously saved world from file.</p>
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.AttachmentsPath">
+<tt class="descname">AttachmentsPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.AttachmentsPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>String for current used OS path there reports attachments are stored</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.Configuration">
+<tt class="descname">Configuration</tt><a class="headerlink" href="#Deca.World.DecaWorld.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of configuration values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.DeleteLayer">
+<tt class="descname">DeleteLayer</tt><big>(</big><em>self</em>, <em>name</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.DeleteLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes given layer from world. This operation <strong>destroes all data on this layer</strong> and can&#8217;t be undone.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string or None</em>) &#8211; name of the desired layer</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.Destroy">
+<tt class="descname">Destroy</tt><big>(</big><em>self</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.Destroy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finalize world usage. Save world and delete the directory tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.EnginesPath">
+<tt class="descname">EnginesPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.EnginesPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>String for current used OS path there engines hierarchy stored</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.FindObject">
+<tt class="descname">FindObject</tt><big>(</big><em>oid</em>, <em>includeReflections=False</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.FindObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for object(s) with given ID through all layers in the world.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>oid</strong> &#8211; Object identifier</li>
+<li><strong>includeReflections</strong> &#8211; need to include reflections into results? False by default.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of two-values tuples. First value - the object reference, second - the layer name</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.GetLayer">
+<tt class="descname">GetLayer</tt><big>(</big><em>self</em>, <em>String name</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.GetLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Deca.Layer with th given name from the world. If layer with given name doesn&#8217;t exists
+the new layer created.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string or None</em>) &#8211; name of the desired layer</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="#module-Deca.Layer" title="Deca.Layer"><tt class="xref py py-class docutils literal"><span class="pre">Deca.Layer</span></tt></a> object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.GetLayerList">
+<tt class="descname">GetLayerList</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.GetLayerList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build list of layers names for layers existing in this world.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the list of layers names existing in this world</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.GetPropList">
+<tt class="descname">GetPropList</tt><big>(</big><em>holder=None</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.GetPropList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.GetShapes">
+<tt class="descname">GetShapes</tt><big>(</big><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.GetShapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for object(s) with given ID through all layers in the world.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of string for names existing shapes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.ID_Configuration">
+<tt class="descname">ID_Configuration</tt><em class="property"> = '&#64;configuration'</em><a class="headerlink" href="#Deca.World.DecaWorld.ID_Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal pseudo-layer to store configuration data.</p>
+<p>This storage is just the dictionary to save arbitrary data in the world&#8217;s storage.
+It always exists, and can&#8217;t be removed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.ID_Repository">
+<tt class="descname">ID_Repository</tt><em class="property"> = '&#64;repository'</em><a class="headerlink" href="#Deca.World.DecaWorld.ID_Repository" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal layer to store repository: templates, objects and shapes. It always exists,
+and can&#8217;t be removed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.PixmapsPath">
+<tt class="descname">PixmapsPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.PixmapsPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>String for current used OS path there world-related images are stored</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.ReportsPath">
+<tt class="descname">ReportsPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.ReportsPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>String for current used OS path there reports hierarchy stored</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.ResultsPath">
+<tt class="descname">ResultsPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.ResultsPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>String for current used OS path there reports results are stored</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.Save">
+<tt class="descname">Save</tt><big>(</big><em>self</em>, <em>String fname = None</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.Save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flush current world&#8217;s storage. Stores into the reviously given file, or to the
+file given as function parameter. If no file name given and world dosen&#8217;t created
+from file or never was saved the diagnostical message appear.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fname</strong> (<em>string or None</em>) &#8211; file name to store the world to. May be <em>None</em> to use previously given file name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Deca.World.DecaWorld.ShapesPath">
+<tt class="descname">ShapesPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.ShapesPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>String for current used OS path there shapes definitions are stored</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="Deca.World.walk_visit">
+<tt class="descclassname">Deca.World.</tt><tt class="descname">walk_visit</tt><big>(</big><em>arg</em>, <em>dirname</em>, <em>flist</em><big>)</big><a class="headerlink" href="#Deca.World.walk_visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to correctly save the world</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Deca Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">Deca</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-Deca.Attribute"><tt class="docutils literal"><span class="pre">Attribute</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-Deca.Layer"><tt class="docutils literal"><span class="pre">Layer</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-Deca.Link"><tt class="docutils literal"><span class="pre">Link</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-Deca.Object"><tt class="docutils literal"><span class="pre">Object</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-Deca.Utility"><tt class="docutils literal"><span class="pre">Utility</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-Deca.World"><tt class="docutils literal"><span class="pre">World</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="previous chapter">List of all public modules in Sampo</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="DefaultShape.html"
+                        title="next chapter">DefaultShape Module</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="DefaultShape.html" title="DefaultShape Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="List of all public modules in Sampo"
+             >previous</a> |</li>
+        <li><a href="index.html">Sampo 0.9a documentation</a> &raquo;</li>
+          <li><a href="modules.html" >List of all public modules in Sampo</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Andrew Abramov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
