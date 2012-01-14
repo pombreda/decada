@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        SamPy
-# Purpose:     Main module of the Sampo framework
+# Name:        Decada
+# Purpose:     Main module of the Decada framework
 #
 # Author:      Stinger
 #
 # Created:     15.10.2011
-# Copyright:   (c) Stinger 2011
-# Licence:     Private
+# Copyright:   (c) Triplika 2011
+# Licence:     LGPL
 #-------------------------------------------------------------------------------
 #!/usr/bin/python
 import os
@@ -30,8 +30,8 @@ import Editra.src.ed_i18n as ed_i18n
 
 from NbookPanel import PyShellView
 from ShapeEditor import ShapeEdPanel
-import ScEditor
-import ScGraph
+import EditorPanel
+import GraphPanel
 import Settings
 import ObjRepo
 import PyShell
@@ -209,7 +209,7 @@ class PyAUIFrame(wx.Frame):
 											wx.CLIP_CHILDREN):
 
 		self.log = Log(self)
-		#self.log.write("Images will now be provided by SampoArt\n")
+		#self.log.write("Images will now be provided by DecadaArt\n")
 		wx.ArtProvider.PushProvider(ed_art.EditraArt())
 
 
@@ -229,7 +229,7 @@ class PyAUIFrame(wx.Frame):
 		self.statusbar = self.CreateStatusBar(2) #, wx.ST_SIZEGRIP
 		self.statusbar.SetStatusWidths([-2, -3])
 		self.statusbar.SetStatusText("Ready", 0)
-		self.statusbar.SetStatusText("Welcome To SamPy Framework", 1)
+		self.statusbar.SetStatusText("Welcome To Decada Framework", 1)
 
 		# min size for the frame itself isn't completely done.
 		# see the end up FrameManager::Update() for the test
@@ -253,13 +253,13 @@ class PyAUIFrame(wx.Frame):
 		tb1.AddTool(self.ID_Settings, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Options"), _("Tune the framework"), None)
 		tb1.AddSeparator()
-		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_LAYER), wx.ART_MENU, wx.Size(16, 16))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECADA_LAYER), wx.ART_MENU, wx.Size(16, 16))
 		tb1.AddTool(self.ID_AddLayer, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Add layer"), _("Create new empty layer"), None)
-		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_IMAGES), wx.ART_MENU, wx.Size(16, 16))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECADA_IMAGES), wx.ART_MENU, wx.Size(16, 16))
 		tb1.AddTool(self.ID_ImageLib, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Images"), _("Edit images library"), None)
-		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_ENGINE), wx.ART_MENU, wx.Size(16, 16))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECADA_ENGINE), wx.ART_MENU, wx.Size(16, 16))
 		tb1.AddTool(self.ID_ERefresh, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Reload engines"), _("Rebuild engines tree and reinitialize packages"), None)
 		tb1.AddSeparator()
@@ -442,7 +442,7 @@ class PyAUIFrame(wx.Frame):
 
 	def OnNewWorld(self, event):
 		if Deca.world.Modified:
-			resp = wx.MessageBox(_("Do you want to save current work?"), _("Sampo Framework"), wx.YES_NO|wx.CANCEL|wx.ICON_QUESTION)
+			resp = wx.MessageBox(_("Do you want to save current work?"), _("Decada Framework"), wx.YES_NO|wx.CANCEL|wx.ICON_QUESTION)
 			if resp == wx.CANCEL:
 				return
 			if resp == wx.YES:
@@ -463,7 +463,7 @@ class PyAUIFrame(wx.Frame):
 		evt_id = event.GetId()
 		if evt_id == self.ID_OpenWorldFile or evt_id == self.ID_OpenWorldReduced:
 			if Deca.world.Modified:
-				resp = wx.MessageBox(_("Do you want to save current work?"), _("Sampo Framework"), wx.YES_NO|wx.CANCEL|wx.ICON_QUESTION)
+				resp = wx.MessageBox(_("Do you want to save current work?"), _("Decada Framework"), wx.YES_NO|wx.CANCEL|wx.ICON_QUESTION)
 				if resp == wx.CANCEL:
 					return
 				if resp == wx.YES:
@@ -488,9 +488,9 @@ class PyAUIFrame(wx.Frame):
 						tag = pg[0]
 						#self.log("[DoOpenWorld][dbg] page = %s" % str(pg))
 						if tag == "Text":
-							if pg[1][1] == ScEditor.EditorPanel.ED_TypeScript:
+							if pg[1][1] == EditorPanel.EditorPanel.ED_TypeScript:
 								fn = os.path.join(Deca.world.EnginesPath, pg[1][0])
-							elif pg[1][1] == ScEditor.EditorPanel.ED_TypeReport:
+							elif pg[1][1] == EditorPanel.EditorPanel.ED_TypeReport:
 								fn = os.path.join(Deca.world.ReportsPath, pg[1][0])
 							if os.path.exists(fn):
 								self.CreateTextWindow(fn, pg[1][1], activate=pg[2])
@@ -502,7 +502,7 @@ class PyAUIFrame(wx.Frame):
 								ttl = px.tx.GetTitleString()
 								self.AddTab(px, ttl, active=pg[2])
 						elif tag == "Graph":
-							px = ScGraph.GraphPanel(pg[1], self)
+							px = GraphPanel.GraphPanel(pg[1], self)
 							self.AddTab(px, pg[1], active=pg[2])
 						elif tag == "Repo":
 							px = ObjRepo.RepositoryPanel(self)
@@ -531,7 +531,7 @@ class PyAUIFrame(wx.Frame):
 					self._mgr.LoadPerspective(pdata)
 			# if file selected
 		elif evt_id == self.ID_OpenWorldMerge:
-			wx.MessageBox(_("Not implemented yet!"), _("Sampo Framework"))
+			wx.MessageBox(_("Not implemented yet!"), _("Decada Framework"))
 		else:
 			event.Skip()
 
@@ -763,18 +763,17 @@ class PyAUIFrame(wx.Frame):
 				pg.UpdateColors(sm)
 			elif ttl == u'layer':
 				for i in range(self.nbook.GetPageCount()) :
-					pt = self.nbook.GetPageText(i)
 					if self.nbook.GetPage(i).Tag == 'Graph' and self.nbook.GetPageText(i) == msg:
 						self.nbook.SetSelection(i)
 						return
-				pg = ScGraph.GraphPanel(msg, self)
+				pg = GraphPanel.GraphPanel(msg, self)
 				self.AddTab(pg, msg, active=True)
 				sm = ed_style.StyleMgr(ed_style.StyleMgr.GetStyleSheet(self.style))
 				pg.UpdateColors(sm)
 			elif ttl.startswith('EngineCod') :
 				self.CreateTextWindow(ttl[10:], activate=True)
 			elif ttl.startswith('ReportCod') :
-				self.CreateTextWindow(ttl[10:], ScEditor.EditorPanel.ED_TypeReport, activate=True)
+				self.CreateTextWindow(ttl[10:], EditorPanel.EditorPanel.ED_TypeReport, activate=True)
 		# valid item wx.MessageBox(msg, ttl, wx.OK)
 
 	def OnExplChaged(self, event):
@@ -810,7 +809,7 @@ class PyAUIFrame(wx.Frame):
 			if dlg.GetValue() != '' and not dlg.GetValue().startswith('@'):
 				Deca.world.GetLayer(dlg.GetValue())
 			else :
-				wx.MessageBox(_("Can't create layer with given name"), _('Sampo Framework'), wx.OK|wx.ICON_ERROR)
+				wx.MessageBox(_("Can't create layer with given name"), _('Decada Framework'), wx.OK|wx.ICON_ERROR)
 			self.UpdateWorldTree(self.updateTree_Layers)
 		dlg.Destroy()
 		pass
@@ -946,9 +945,9 @@ class PyAUIFrame(wx.Frame):
 				# end while
 
 		imglist = wx.ImageList(16, 16, True, 2)
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_SAMPO_WORLD), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_SAMPO_LAYER), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_SAMPO_OBJECT), wx.ART_MENU, wx.Size(16,16)))
+		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECADA_WORLD), wx.ART_MENU, wx.Size(16,16)))
+		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECADA_LAYER), wx.ART_MENU, wx.Size(16,16)))
+		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECADA_OBJECT), wx.ART_MENU, wx.Size(16,16)))
 		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_FOLDER), wx.ART_MENU, wx.Size(16,16)))
 		imglist.Add(wx.ArtProvider.GetBitmap(str(synglob.ID_LANG_PYTHON), wx.ART_MENU, wx.Size(16,16)))
 		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_BIN_FILE), wx.ART_MENU, wx.Size(16,16)))
@@ -998,7 +997,7 @@ class PyAUIFrame(wx.Frame):
 		# reports added
 		self.explorer.Expand(root)
 
-	def CreateTextWindow(self, fname, ftype=ScEditor.EditorPanel.ED_TypeScript, activate=False):
+	def CreateTextWindow(self, fname, ftype=EditorPanel.EditorPanel.ED_TypeScript, activate=False):
 		if not os.path.exists(fname):
 			fname = os.path.join(os.path.curdir, fname)
 			open(fname, 'w').close()
@@ -1007,7 +1006,7 @@ class PyAUIFrame(wx.Frame):
 				self.nbook.SetSelection(i)
 				return
 
-		pg = ScEditor.EditorPanel(ftype, self)
+		pg = EditorPanel.EditorPanel(ftype, self)
 		pg.tx.UpdateAllStyles(self.style)
 		pg.tx.LoadFile(fname)
 		ttl = pg.tx.GetTitleString()
@@ -1045,7 +1044,7 @@ class PyAUIFrame(wx.Frame):
 				try:
 					os.makedirs(os.path.join(base, dlg.GetValue()))
 				except Exception as cond:
-					wx.MessageBox(_("Can't create folder: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
+					wx.MessageBox(_("Can't create folder: %s") % cond, _("Decada Framework"), wx.OK | wx.ICON_ERROR)
 			dlg.Destroy()
 		elif event.GetId() == self.ID_AddEPackage :
 			dlg = wx.TextEntryDialog(self, _("Enter new package's name"),_('New Package'))
@@ -1056,7 +1055,7 @@ class PyAUIFrame(wx.Frame):
 					os.makedirs(base)
 					open(os.path.join(base, '__init__.py'), 'a').close()
 				except Exception as cond:
-					wx.MessageBox(_("Can't create folder: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
+					wx.MessageBox(_("Can't create folder: %s") % cond, _("Decada Framework"), wx.OK | wx.ICON_ERROR)
 			dlg.Destroy()
 		elif event.GetId() == self.ID_AddECode :
 			dlg = wx.TextEntryDialog(self, _("Enter new engine's name"),_('New Engine'))
@@ -1067,7 +1066,7 @@ class PyAUIFrame(wx.Frame):
 					open(base, 'a').close()
 					self.CreateTextWindow(base, activate=True)
 				except Exception as cond:
-					wx.MessageBox(_("Can't create file: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
+					wx.MessageBox(_("Can't create file: %s") % cond, _("Decada Framework"), wx.OK | wx.ICON_ERROR)
 			dlg.Destroy()
 		elif event.GetId() == self.ID_ERemove :
 			if os.path.isdir(base) :
@@ -1093,7 +1092,7 @@ class PyAUIFrame(wx.Frame):
 				fl = open(base, 'r')
 				exec fl in globals()
 			except Exception as cond:
-				wx.MessageBox(_("Error execution %s!\n%s") % (fname, cond), _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
+				wx.MessageBox(_("Error execution %s!\n%s") % (fname, cond), _("Decada Framework"), wx.OK | wx.ICON_ERROR)
 				self.LogMessage("[exec][err] %s" % cond)
 			finally:
 				if fl : fl.close()
@@ -1118,7 +1117,7 @@ class PyAUIFrame(wx.Frame):
 				try:
 					os.makedirs(os.path.join(base, dlg.GetValue()))
 				except Exception as cond:
-					wx.MessageBox(_("Can't create folder: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
+					wx.MessageBox(_("Can't create folder: %s") % cond, _("Decada Framework"), wx.OK | wx.ICON_ERROR)
 			dlg.Destroy()
 		elif event.GetId() == self.ID_AddRCode :
 			dlg = wx.TextEntryDialog(self, _("Enter new report's name"),_('New Report'))
@@ -1127,9 +1126,9 @@ class PyAUIFrame(wx.Frame):
 				try:
 					base = os.path.join(base, dlg.GetValue() + '.xml')
 					open(base, 'a').close()
-					self.CreateTextWindow(base, ScEditor.EditorPanel.ED_TypeReport, activate=True)
+					self.CreateTextWindow(base, EditorPanel.EditorPanel.ED_TypeReport, activate=True)
 				except Exception as cond:
-					wx.MessageBox(_("Can't create file: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
+					wx.MessageBox(_("Can't create file: %s") % cond, _("Decada Framework"), wx.OK | wx.ICON_ERROR)
 			dlg.Destroy()
 		elif event.GetId() == self.ID_RRemove :
 			if os.path.isdir(base) :
@@ -1147,7 +1146,7 @@ class PyAUIFrame(wx.Frame):
 		if event.GetId() == self.ID_RemoveLayer :
 			if  wx.MessageBox(_("""Are you sure to clear this layer?
 NOTE: this operation can't be undone!
-All data owned by this layer will be lost!"""), _("Sampo Framework"), wx.YES_NO | wx.ICON_WARNING) == wx.YES :
+All data owned by this layer will be lost!"""), _("Decada Framework"), wx.YES_NO | wx.ICON_WARNING) == wx.YES :
 				# close layer page if open
 				for i in range(self.nbook.GetPageCount()) :
 					if self.nbook.GetPage(i).Tag == 'Graph' and self.nbook.GetPageText(i) == base:
@@ -1280,7 +1279,7 @@ class RunApp(wx.App):
 		self.ReloadTranslation()
 		
 		ogl.OGLInitialize()
-		frame = PyAUIFrame(None, wx.ID_ANY, "Sampo Framework", size=(750, 570))
+		frame = PyAUIFrame(None, wx.ID_ANY, "Decada Framework", size=(750, 570))
 		frame.Show(True)
 
 		self.SetTopWindow(frame)
@@ -1336,5 +1335,5 @@ class RunApp(wx.App):
 			self.locale.AddCatalog(name)
 
 if __name__ == '__main__':
-	app = RunApp("Sampo")
+	app = RunApp("Decada")
 	app.MainLoop()

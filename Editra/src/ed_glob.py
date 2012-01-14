@@ -317,21 +317,21 @@ ID_METHOD_TYPE = wx.NewId()
 
 # Sampo IDs
 
-ID_SAMPO_EMPTY = wx.NewId()
-ID_SAMPO_ENGINE = wx.NewId()
-ID_SAMPO_FILTER = wx.NewId()
-ID_SAMPO_IMAGES = wx.NewId()
-ID_SAMPO_LAYER = wx.NewId()
-ID_SAMPO_LAYOUT = wx.NewId()
-ID_SAMPO_LINK = wx.NewId()
-ID_SAMPO_OBJECT = wx.NewId()
-ID_SAMPO_REPORT = wx.NewId()
-ID_SAMPO_TOOLS = wx.NewId()
-ID_SAMPO_WORLD = wx.NewId()
+ID_DECADA_EMPTY = wx.NewId()
+ID_DECADA_ENGINE = wx.NewId()
+ID_DECADA_FILTER = wx.NewId()
+ID_DECADA_IMAGES = wx.NewId()
+ID_DECADA_LAYER = wx.NewId()
+ID_DECADA_LAYOUT = wx.NewId()
+ID_DECADA_LINK = wx.NewId()
+ID_DECADA_OBJECT = wx.NewId()
+ID_DECADA_REPORT = wx.NewId()
+ID_DECADA_TOOLS = wx.NewId()
+ID_DECADA_WORLD = wx.NewId()
 
-ID_SAMPO_REGEX = wx.NewId()
-ID_SAMPO_CASE = wx.NewId()
-ID_SAMPO_WORD = wx.NewId()
+ID_DECADA_REGEX = wx.NewId()
+ID_DECADA_CASE = wx.NewId()
+ID_DECADA_WORD = wx.NewId()
 
 # Statusbar IDs
 SB_INFO          = 0

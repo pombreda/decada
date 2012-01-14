@@ -12,11 +12,11 @@
 #!/usr/bin/env python
 import os
 from Deca.Utility import *
-from ScEditor import *
+from EditorPanel import *
 from wx.lib import ogl
 import wx.lib.agw.aui as aui
 import gettext
-from ScGraph import CreateObjectShape
+from GraphPanel import CreateObjectShape
 
 _ = gettext.gettext
 

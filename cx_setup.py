@@ -44,9 +44,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "Editra", "src"))
 setup(
     version = vars_txt,
     description = desc_txt,
-    name = "Sampo",
+    name = "Decada",
 
     # targets to build
     options = dict(build_exe = buildOptions),
-    executables = [Executable("SamPy.py", targetName="Sampo", shortcutName="sampo", compress=1)]
+    executables = [Executable("Decada.py", targetName="Decada", shortcutName="decada", compress=1)]
     )

@@ -274,21 +274,21 @@ ART = { ed_glob.ID_ABOUT  : u'about.png',
         ed_glob.ID_METHOD_TYPE : u'method.png',
 
         # Sampo extensions
-		ed_glob.ID_SAMPO_EMPTY : u'empty.png',
-		ed_glob.ID_SAMPO_ENGINE : u'engine.png',
-		ed_glob.ID_SAMPO_FILTER : u'filter.png',
-		ed_glob.ID_SAMPO_IMAGES : u'images.png',
-		ed_glob.ID_SAMPO_LAYER : u'layer.png',
-		ed_glob.ID_SAMPO_LAYOUT : u'layout.png',
-		ed_glob.ID_SAMPO_LINK : u'symbolic-link.png',
-        ed_glob.ID_SAMPO_OBJECT : u'object.png',
-        ed_glob.ID_SAMPO_REPORT : u'report.png',
-		ed_glob.ID_SAMPO_TOOLS : u'options.png',
-		ed_glob.ID_SAMPO_WORLD : u'globe.png',
+		ed_glob.ID_DECADA_EMPTY : u'empty.png',
+		ed_glob.ID_DECADA_ENGINE : u'engine.png',
+		ed_glob.ID_DECADA_FILTER : u'filter.png',
+		ed_glob.ID_DECADA_IMAGES : u'images.png',
+		ed_glob.ID_DECADA_LAYER : u'layer.png',
+		ed_glob.ID_DECADA_LAYOUT : u'layout.png',
+		ed_glob.ID_DECADA_LINK : u'symbolic-link.png',
+        ed_glob.ID_DECADA_OBJECT : u'object.png',
+        ed_glob.ID_DECADA_REPORT : u'report.png',
+		ed_glob.ID_DECADA_TOOLS : u'options.png',
+		ed_glob.ID_DECADA_WORLD : u'globe.png',
 
-		ed_glob.ID_SAMPO_REGEX : u'regex.png',
-		ed_glob.ID_SAMPO_CASE : u'case.png',
-		ed_glob.ID_SAMPO_WORD : u'word.png'
+		ed_glob.ID_DECADA_REGEX : u'regex.png',
+		ed_glob.ID_DECADA_CASE : u'case.png',
+		ed_glob.ID_DECADA_WORD : u'word.png'
 
 }
 

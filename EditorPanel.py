@@ -22,6 +22,13 @@ from Reporter import ReportGenerator
 
 _ = gettext.gettext
 
+_hgUsefull = False
+try:
+	from mercurial import ui, hg
+	_hgUsefull = True
+except ImportError:
+	_hgUsefull = False
+
 ###########################################################################
 ## Class EdtHolder
 ###########################################################################
