@@ -32,21 +32,21 @@ class SearchBar(wx.PyPanel):
 										 style=eclib.PB_STYLE_NOBG)
 		bSizer.Add( self.close_b, proportion=0, flag=wx.ALIGN_LEFT, border=0 )
 
-		t_bmp = wx.ArtProvider.GetBitmap(str(ed_glob.ID_SAMPO_REGEX), wx.ART_MENU)
+		t_bmp = wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECA_REGEX), wx.ART_MENU)
 		rx_btn = eclib.PlateButton(self, ID_REGEX, bmp=t_bmp,
 								   style=eclib.PB_STYLE_NOBG | eclib.PB_STYLE_TOGGLE ,
 								   name="RegexBtn")
 		rx_btn.SetToolTipString(_("Regular expression (Alt+R)"))
 		bSizer.Add( rx_btn, proportion=0, flag=wx.ALIGN_LEFT, border=0 )
 
-		t_bmp = wx.ArtProvider.GetBitmap(str(ed_glob.ID_SAMPO_CASE), wx.ART_MENU)
+		t_bmp = wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECA_CASE), wx.ART_MENU)
 		case_btn = eclib.PlateButton(self, ID_MATCH_CASE, bmp=t_bmp,
 									 style=eclib.PB_STYLE_NOBG | eclib.PB_STYLE_TOGGLE,
 									 name="CaseBtn")
 		case_btn.SetToolTipString(_("Case sensetive (Alt+C)"))
 		bSizer.Add( case_btn, proportion=0, flag=wx.ALIGN_LEFT, border=0 )
 
-		t_bmp = wx.ArtProvider.GetBitmap(str(ed_glob.ID_SAMPO_WORD), wx.ART_MENU)
+		t_bmp = wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECA_WORD), wx.ART_MENU)
 		word_btn = eclib.PlateButton(self, ID_WHOLE_WORD, bmp=t_bmp,
 								   style=eclib.PB_STYLE_NOBG | eclib.PB_STYLE_TOGGLE,
 								   name="WordBtn")

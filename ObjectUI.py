@@ -317,3 +317,58 @@ class ReflectObjDlg ( wx.Dialog ):
 		bSizer.Fit( self )
 
 		self.Centre( wx.BOTH )
+
+###########################################################################
+## Class UserPassDlg
+###########################################################################
+class UserPassDlg ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = _("User Account"), pos = wx.DefaultPosition, size = wx.Size( 340,157 ), style = wx.DEFAULT_DIALOG_STYLE )
+
+		self.SetSizeHintsSz( wx.DefaultSize, maxSize=wx.DefaultSize )
+
+		bSizer = wx.BoxSizer( wx.VERTICAL )
+
+		self.DlgLabel = wx.StaticText( self, wx.ID_ANY, _("Enter account details"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.DlgLabel.Wrap( -1 )
+		bSizer.Add( self.DlgLabel, proportion=0, flag=wx.ALL, border=5 )
+
+		fgSizer = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer.AddGrowableCol( 1 )
+		fgSizer.SetFlexibleDirection( wx.BOTH )
+		fgSizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.stUname = wx.StaticText( self, wx.ID_ANY, _("Username"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.stUname.Wrap( -1 )
+		fgSizer.Add( self.stUname, proportion=0, flag=wx.ALL, border=5 )
+
+		self.txtUname = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer.Add( self.txtUname, proportion=0, flag=wx.ALL|wx.EXPAND, border=2 )
+
+		self.stPasswd = wx.StaticText( self, wx.ID_ANY, _("Password"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.stPasswd.Wrap( -1 )
+		fgSizer.Add( self.stPasswd, proportion=0, flag=wx.ALL, border=5 )
+
+		self.txtPassword = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
+		fgSizer.Add( self.txtPassword, proportion=0, flag=wx.ALL|wx.EXPAND, border=2 )
+
+		bSizer.Add( fgSizer, proportion=0, flag=wx.EXPAND, border=5 )
+
+		sdbSizer = wx.StdDialogButtonSizer()
+		self.sdbSizerOK = wx.Button( self, wx.ID_OK )
+		sdbSizer.AddButton( self.sdbSizerOK )
+		self.sdbSizerCancel = wx.Button( self, wx.ID_CANCEL )
+		sdbSizer.AddButton( self.sdbSizerCancel )
+		sdbSizer.Realize()
+		bSizer.Add( sdbSizer, proportion=0, flag=wx.ALL|wx.EXPAND, border=5 )
+
+		self.SetSizer( bSizer )
+		self.Layout()
+
+		self.Centre( wx.BOTH )
+
+	def __del__( self ):
+		pass
+
+

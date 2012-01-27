@@ -7,7 +7,7 @@
 #
 # Created:     19.10.2011
 # Copyright:   (c) Stinger 2011
-# Licence:     Private
+# Licence:     LGPL
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 import os
@@ -18,10 +18,12 @@ import tempfile
 import zipfile
 import shutil
 from collections import OrderedDict
+import sys
 from Deca.Layer import DecaRepo, DecaLayer, DecaLayerStorage, DecaRepoStorage
 import Editra.src.ed_glob as ed_glob
 from ZODB.FileStorage import FileStorage
 from ZODB.DB import DB
+import HgCommon
 import gettext
 _ = gettext.gettext
 
@@ -29,7 +31,7 @@ __author__ = 'Stinger'
 ID_Repository = '@repository'
 
 def walk_visit(arg, dirname, flist):
-	'''Helper function to correctly save the world'''
+	"""Helper function to correctly save the world"""
 	zipper = arg[0]
 	base = arg[1]
 	base = dirname.replace(base, '')
@@ -43,19 +45,20 @@ class DecaWorld:
 	"""The DECA world object.
 
 	This object controls the database and the file structure for the DECA world.
-	The constructor argument *filename* allows restore previously saved world from file."""
+	The constructor argument *filename* allows restore previously saved world from file.
+
+	:attribute ID_Repository: Internal layer to store repository: templates, objects
+		and shapes. It always exists, and can't be removed.
+	:attribute ID_Configuration: Internal pseudo-layer to store configuration data.
+		This storage is just the dictionary to save arbitrary data in the world's storage.
+		It always exists, and can't be removed.
+	"""
 
 	ID_Repository = '@repository'
-	"""Internal layer to store repository: templates, objects and shapes. It always exists,
-	and can't be removed."""
 
 	ID_Configuration = '@configuration'
-	"""Internal pseudo-layer to store configuration data.
-	
-	This storage is just the dictionary to save arbitrary data in the world's storage.
-	It always exists, and can't be removed."""
 
-	def __init__(self, filename = None):
+	def __init__(self, filename = None, **argsdict):
 		self.roots = None
 		self.propsGrid = None
 		self.Modified = False
@@ -103,8 +106,22 @@ class DecaWorld:
 			except Exception as cond:
 				wx.MessageBox(_("Can't create world's storage!\n%s\nExiting...") % cond, _("Sampo Framework"), wx.OK | wx.CENTER | wx.ICON_ERROR)
 				wx.GetApp().Exit()
+		# initialize repository filters
+		if not os.path.exists(os.path.join(self.wfs, '.hgignore')):
+			f = open(os.path.join(self.wfs, '.hgignore'), 'w')
+			f.write('syntax: glob\n')
+			f.write('.hg-*\n')
+			f.write('profiles\n')
+			f.write('database\n')
+			f.write('results\n')
+			f.write('attachments\n')
+			f.write('*.pyc\n')
+			f.write('*.pyo\n')
+			f.close()
+		self._repo = HgCommon.HgCreate(self.wfs, **argsdict)
 		# initialize database
 		ed_glob.CONFIG['PROFILE_DIR'] = os.path.join(self.wfs, 'profiles')
+		# todo: load profile value and swich to remote DB if necessary
 
 		# drop database indexes if platrorm doesn't match with previous save
 		try :
@@ -136,7 +153,7 @@ class DecaWorld:
 		self.connection = self.odb.open()
 		self.roots = self.connection.root()
 		self.transaction = self.connection.transaction_manager.begin()
-		# always create repository
+		# always create object's repository
 		if self.Initial :
 			self.roots[self.ID_Repository] = DecaRepoStorage()
 			self.roots[self.ID_Configuration] = PersistentMapping()
@@ -149,6 +166,15 @@ class DecaWorld:
 	def _commit(self):
 		self.transaction.commit()
 		self.transaction = self.connection.transaction_manager.begin()
+
+	def Rollback(self):
+		"""Rollback(self)
+
+		Rollback current transaction.
+		
+		Undos all changes in database since last save
+		Note: this operation can't be reversed."""
+		pass
 
 	def Destroy(self):
 		"""Destroy(self)
@@ -258,7 +284,7 @@ class DecaWorld:
 	def GetShapes(self):
 		"""Search for object(s) with given ID through all layers in the world.
 
-		:returns: list of string for names existing shapes"""
+		:returns: list of string for names of existing shapes"""
 		try:
 			return [os.path.splitext(f)[0] for f in os.listdir(self.ShapesPath) if os.path.splitext(f)[1].lower() == '.py']
 		except Exception:
@@ -298,3 +324,8 @@ class DecaWorld:
 	def ShapesPath(self):
 		"""String for current used OS path there shapes definitions are stored"""
 		return os.path.join(self.wfs, 'shapes')
+
+	@property
+	def HgRepository(self):
+		"""Mercurial repository for source control"""
+		return self._repo

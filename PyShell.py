@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        SamPy
-# Purpose:     Main module of the Sampo framework
+# Name:        PyShell
+# Purpose:     Python shell window
 #
 # Author:      Stinger
 #

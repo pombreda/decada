@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        SamPy
-# Purpose:     Main module of the Sampo framework
+# Name:        AboutDlg
+# Purpose:     About window
 #
 # Author:      Stinger
 #

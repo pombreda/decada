@@ -257,7 +257,6 @@ class CellEditor ( wx.Control ):
 		dlg.SetData(self.value)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.SetValue(dlg.GetData())
-		#wx.MessageBox(_("CellEditor button!"), _("Sampo Framework"))
 		event.Skip()
 
 	def SetSize( self, rect ):

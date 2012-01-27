@@ -36,7 +36,7 @@ class ShapeEdPanel(EditorPanel):
 		mtb = wx.ToolBar( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
 		mtb.AddTool(wx.ID_REFRESH, wx.ArtProvider_GetBitmap(str(ed_glob.ID_REFRESH), wx.ART_MENU, wx.Size(16, 16)),
 						shortHelpString= _("Reload module"), longHelpString= _("Reload code to use"))
-		mtb.AddTool(wx.ID_VIEW_DETAILS, wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_IMAGES), wx.ART_MENU, wx.Size(16, 16)),
+		mtb.AddTool(wx.ID_VIEW_DETAILS, wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_IMAGES), wx.ART_MENU, wx.Size(16, 16)),
 						shortHelpString= _("Preview"), longHelpString= _("Preview shape drawing"))
 		mtb.AddSeparator()
 		mtb.AddTool(wx.ID_SAVE, wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAVE), wx.ART_MENU, wx.Size(16, 16)),

@@ -18,7 +18,7 @@ import gettext
 _ = gettext.gettext
 
 """Reporter module
-This module provides report building abilities for Sampo Framework.
+This module provides report building abilities for the Framework.
 It uses functionality provided by Deca structure.
 Report builds by XML-based template, wich consis of two parts:
 1) data generators

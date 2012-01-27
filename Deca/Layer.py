@@ -7,7 +7,7 @@
 #
 # Created:     21.10.2011
 # Copyright:   (c) Stinger 2011
-# Licence:     Private
+# Licence:     LGPL
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 from collections import OrderedDict

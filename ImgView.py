@@ -106,7 +106,7 @@ class ImgImportDlg ( wx.Dialog ):
 				ix = img.GetWidth()
 				iy = img.GetHeight()
 			if ix < PREVIEW_SIZE or iy < PREVIEW_SIZE:
-				bgi = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_EMPTY), wx.ART_MENU, wx.Size(PREVIEW_SIZE, PREVIEW_SIZE)).ConvertToImage()
+				bgi = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_EMPTY), wx.ART_MENU, wx.Size(PREVIEW_SIZE, PREVIEW_SIZE)).ConvertToImage()
 				scaled = img.ConvertToImage()
 				bgi.Paste(scaled, (PREVIEW_SIZE - ix)/2, (PREVIEW_SIZE - iy)/2)
 				img = bgi.ConvertToBitmap()
@@ -133,7 +133,7 @@ class ImgPanel(NbookPanel):
 		NbookPanel.__init__ ( self, parent, id, pos, size, style, name )
 		self.Tag = "ImgView"
 		self.Title = _("Image Library")
-		self.icon = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_IMAGES), wx.ART_MENU, wx.Size(16, 16))
+		self.icon = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_IMAGES), wx.ART_MENU, wx.Size(16, 16))
 
 		bSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -210,7 +210,7 @@ class ImgPanel(NbookPanel):
 				sy = iy * sc
 				scaled = img.ConvertToImage().Rescale(sx,sy,wx.IMAGE_QUALITY_HIGH)
 				if sx != sy:
-					bgi = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_EMPTY), wx.ART_MENU, wx.Size(_THUMB_SIZE, _THUMB_SIZE)).ConvertToImage()
+					bgi = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_EMPTY), wx.ART_MENU, wx.Size(_THUMB_SIZE, _THUMB_SIZE)).ConvertToImage()
 					bgi.Paste(scaled, (_THUMB_SIZE - sx)/2, (_THUMB_SIZE - sy)/2)
 					img = bgi.ConvertToBitmap()
 				else:

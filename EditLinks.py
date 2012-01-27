@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        EditLinks
-# Purpose:     Description for the EditLinks
+# Purpose:     Edit object's links and link's properties
 #
 # Author:      Stinger
 #
@@ -11,11 +11,9 @@
 #-------------------------------------------------------------------------------
 import wx
 from wx.lib.mixins.listctrl import CheckListCtrlMixin, ListCtrlAutoWidthMixin
-import gettext
 from CustomGrid import EditIterable
-from Deca.Utility import Filter
 from Editra.src import ed_glob
-
+import gettext
 _ = gettext.gettext
 
 __author__ = 'aabramov'
@@ -78,7 +76,7 @@ class EdtLinks ( wx.Dialog ):
 		self.edtLayer = None
 		self.links = []
 
-		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHintsSz( wx.DefaultSize, maxSize=wx.DefaultSize )
 
 		bSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -94,25 +92,25 @@ class EdtLinks ( wx.Dialog ):
 		self.linksList.AssignImageList(imglist, which=wx.IMAGE_LIST_SMALL)
 		self.linksList.InsertColumn(0, heading="From", width= 200)
 		self.linksList.InsertColumn(1, heading="To", width= 200)
-		bSizerIn.Add( self.linksList, 1, wx.ALL|wx.EXPAND, 2 )
+		bSizerIn.Add( self.linksList, proportion=1, flag=wx.ALL|wx.EXPAND, border=2 )
 
 		bSizerBtn = wx.BoxSizer( wx.VERTICAL )
 
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_ADD), wx.ART_MENU, wx.Size(16, 16))
 		self.btnAdd = wx.BitmapButton( self, wx.ID_ANY, tbmp, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizerBtn.Add( self.btnAdd, 0, wx.ALL, 5 )
+		bSizerBtn.Add( self.btnAdd, proportion=0, flag=wx.ALL, border=5 )
 
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_REMOVE), wx.ART_MENU, wx.Size(16, 16))
 		self.btnDel = wx.BitmapButton( self, wx.ID_ANY, tbmp, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizerBtn.Add( self.btnDel, 0, wx.ALL, 5 )
+		bSizerBtn.Add( self.btnDel, proportion=0, flag=wx.ALL, border=5 )
 
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DOCPROP), wx.ART_MENU, wx.Size(16, 16))
 		self.btnProps = wx.BitmapButton( self, wx.ID_ANY, tbmp, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizerBtn.Add( self.btnProps, 0, wx.ALL, 5 )
+		bSizerBtn.Add( self.btnProps, proportion=0, flag=wx.ALL, border=5 )
 
-		bSizerIn.Add( bSizerBtn, 0, wx.EXPAND, 0 )
+		bSizerIn.Add( bSizerBtn, proportion=0, flag=wx.EXPAND, border=0 )
 
-		bSizer.Add( bSizerIn, 1, wx.EXPAND, 0 )
+		bSizer.Add( bSizerIn, proportion=1, flag=wx.EXPAND, border=0 )
 
 		sdbSizer = wx.StdDialogButtonSizer()
 		self.sdbSizerOK = wx.Button( self, wx.ID_OK )
@@ -120,7 +118,7 @@ class EdtLinks ( wx.Dialog ):
 		self.sdbSizerCancel = wx.Button( self, wx.ID_CANCEL )
 		sdbSizer.AddButton( self.sdbSizerCancel )
 		sdbSizer.Realize()
-		bSizer.Add( sdbSizer, 0, wx.ALL|wx.EXPAND, 5 )
+		bSizer.Add( sdbSizer, proportion=0, flag=wx.ALL|wx.EXPAND, border=5 )
 
 		self.SetSizer( bSizer )
 		self.Layout()
@@ -154,7 +152,7 @@ class EdtLinks ( wx.Dialog ):
 			item[0] = layer.GetObject(ln.StartObject).GetTitle()
 			item[1] = layer.GetObject(ln.FinishObject).GetTitle()
 			inum = self.linksList.Append(item)
-			self.linksList.SetItemImage(inum, 0)
+			self.linksList.SetItemImage(inum, image=0)
 
 	def OnCancel(self, event):
 		# discard newly created changes
@@ -189,24 +187,24 @@ class EdtLinks ( wx.Dialog ):
 			item[0] = self.edtObject.GetTitle()
 			item[1] = "ToDo: add link"
 			inum = self.linksList.Append(item)
-			self.linksList.SetItemImage(inum, 3)
+			self.linksList.SetItemImage(inum, image=3)
 		event.Skip()
 
 	def OnDel(self, event):
 		itm = self.linksList.GetFirstSelected()
 		if itm > -1:
 			if wx.MessageBox(_("Are you sure to remove link?"), _("Sampo Framework"), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
-				self.linksList.SetItemImage(itm, 1)
+				self.linksList.SetItemImage(itm, image=1)
 		event.Skip()
 
 	def OnProps(self, event):
 		itm = self.linksList.GetFirstSelected()
-		if itm > -1 and itm < len(self.links):
+		if itm > -1 and not itm < len(self.links):
 			dlg = EditIterable(self)
 			dlg.SetData(self.links[itm][1])
 			if dlg.ShowModal() == wx.ID_OK:
 				# save link attributes
 				self.links[itm][1] = dlg.GetData()
 				# set modification marker
-				self.linksList.SetItemImage(itm, 2)
+				self.linksList.SetItemImage(itm, image=2)
 		event.Skip()

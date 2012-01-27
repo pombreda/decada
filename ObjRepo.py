@@ -9,10 +9,10 @@
 # Copyright:   (c) Stinger 2011
 # Licence:     Private
 #-------------------------------------------------------------------------------
-#!/usr/bin/env python
 import os
 import uuid
 import wx
+import wx.lib.agw.aui as aui
 import gettext
 import Deca
 import ShapeEditor
@@ -71,21 +71,21 @@ class TmplDialog ( wx.Dialog ):
 		self.attrGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		# Grid
-		self.attrGrid.CreateGrid( 0, 2 )
+		self.attrGrid.CreateGrid( numRows = 0,numCols = 2 )
 		self.attrGrid.EnableEditing( True )
 		self.attrGrid.EnableGridLines( True )
 		self.attrGrid.EnableDragGridSize( False )
 		self.attrGrid.SetMargins( 0, 0 )
 
 		# Columns
-		self.attrGrid.SetColSize( 0, 130 )
-		self.attrGrid.SetColSize( 1, 150 )
+		self.attrGrid.SetColSize( 0, width = 130 )
+		self.attrGrid.SetColSize( 1, width = 150 )
 		self.attrGrid.EnableDragColMove( False )
 		self.attrGrid.EnableDragColSize( True )
 		self.attrGrid.SetColLabelSize( 30 )
 		self.attrGrid.SetColLabelValue( 0, _("Attribute") )
 		self.attrGrid.SetColLabelValue( 1, _("Default value") )
-		self.attrGrid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		self.attrGrid.SetColLabelAlignment( horiz = wx.ALIGN_CENTRE, vert = wx.ALIGN_CENTRE )
 
 		# Rows
 		self.attrGrid.EnableDragRowSize( True )
@@ -172,8 +172,8 @@ class TmplDialog ( wx.Dialog ):
 						self.attrGrid.SetRowLabelValue(x, '*')
 						self.TitlePos = x
 						self.stTitle.Label = _("Title attribute: %s") % k
-					self.attrGrid.SetCellValue(x, 0, k)
-					self.attrGrid.SetCellValue(x, 1, v)
+					self.attrGrid.SetCellValue(row = x, col = 0, s = k)
+					self.attrGrid.SetCellValue(row = x, col = 1, s = v)
 					x += 1
 				# end attribute scanning
 				try:
@@ -217,7 +217,7 @@ class TmplDialog ( wx.Dialog ):
 				self.attrGrid.SetRowLabelValue(self.TitlePos, '')
 			self.TitlePos = pos[0]
 			self.attrGrid.SetRowLabelValue(pos[0], '*')
-			self.stTitle.Label = _("Title attribute: %s") % self.attrGrid.GetCellValue(pos[0], 0)
+			self.stTitle.Label = _("Title attribute: %s") % self.attrGrid.GetCellValue(row = pos[0], col = 0)
 		# end set Title
 
 	def OnOK( self, event ):
@@ -241,6 +241,10 @@ class RepositoryPanel(NbookPanel):
 	ID_AddTemplate = wx.NewId()
 	ID_AddObject = wx.NewId()
 	ID_AddShape = wx.NewId()
+	ID_SaveSchema = wx.NewId()
+	ID_LoadSchema = wx.NewId()
+	ID_ExportSchema = wx.NewId()
+	ID_ImportSchema = wx.NewId()
 
 	ListID_pos = 3
 
@@ -250,24 +254,46 @@ class RepositoryPanel(NbookPanel):
 		NbookPanel.__init__ ( self, parent, id, pos, size, style, name )
 		self.Tag = "Repo"
 		self.Title = _("Object repository")
-		self.icon = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_OBJECT), wx.ART_MENU, wx.Size(16, 16))
+		self.icon = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_OBJECT), wx.ART_MENU, wx.Size(16, 16))
+		self.frame = wx.GetApp().TopWindow
 
 		bSizer = wx.BoxSizer( wx.VERTICAL )
 
-		self.mtb = wx.ToolBar( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
-		self.mtb.AddTool(self.ID_RefreshPage, wx.ArtProvider_GetBitmap(str(ed_glob.ID_REFRESH), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Refresh view"), longHelpString= _("Refresh reposytory view"))
+		self.mtb = aui.AuiToolBar(self, -1)
+		self.mtb.SetAuiManager(self.frame._mgr)
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_REFRESH), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(self.ID_RefreshPage, '', tbmp, tbmp, wx.ITEM_NORMAL,
+						_("Refresh view"), _("Refresh reposytory view"), None)
 		self.mtb.AddSeparator()
-		self.mtb.AddTool(self.ID_AddTemplate, wx.ArtProvider_GetBitmap(str(ed_glob.ID_CLASS_TYPE), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Add template"), longHelpString= _("Create new object template"))
-		self.mtb.AddTool(self.ID_AddObject, wx.ArtProvider_GetBitmap(str(ed_glob.ID_ATTR_TYPE), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Add object"), longHelpString= _("Create new object"))
-		self.mtb.AddTool(self.ID_AddShape, wx.ArtProvider_GetBitmap(str(ed_glob.ID_PLUGMGR), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Add shape"), longHelpString= _("Create new shape for object's representation"))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_CLASS_TYPE), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(self.ID_AddTemplate, '', tbmp, tbmp, wx.ITEM_NORMAL,
+						_("Add template"), _("Create new object template"), None)
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_ATTR_TYPE), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(self.ID_AddObject, '', tbmp, tbmp, wx.ITEM_NORMAL,
+						_("Add object"), _("Create new object"), None)
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_PLUGMGR), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(self.ID_AddShape, '', tbmp, tbmp, wx.ITEM_NORMAL,
+						_("Add shape"), _("Create new shape for object's representation"), None)
 		self.mtb.AddSeparator()
-		self.mtb.AddTool(wx.ID_DELETE, wx.ArtProvider_GetBitmap(str(ed_glob.ID_DELETE), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Delete"), longHelpString= _("Delete selected from repository"))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DELETE), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(wx.ID_DELETE, '', tbmp, tbmp, wx.ITEM_NORMAL,
+						_("Delete"), _("Delete selected from repository"), None)
+		self.mtb.AddSeparator()
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DOCPROP), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(self.ID_SaveSchema, '', tbmp, tbmp, wx.ITEM_NORMAL,
+			_("Save schema"), _("Save schema into the XML file"), None)
+		self.mtb.SetToolDropDown(self.ID_SaveSchema, True)
 		self.mtb.Realize()
+
+		self._schema_menu = wx.Menu()
+		self._schema_menu.Append(self.ID_SaveSchema, text = _("Save schema"),
+						help = _("Save schema as XML in the world"))
+		self._schema_menu.Append(self.ID_LoadSchema, text = _("Load schema"),
+			help = _("Load schema from the XML"))
+		self._schema_menu.Append(self.ID_ExportSchema, text = _("Export schema"),
+			help = _("Export schema into the XML file"))
+		self._schema_menu.Append(self.ID_ImportSchema, text = _("Import schema"),
+			help = _("Import schema into the XML file"))
 
 		bSizer.Add( self.mtb, proportion=0, flag=wx.EXPAND, border=0 )
 
@@ -297,6 +323,11 @@ class RepositoryPanel(NbookPanel):
 		self.Bind(wx.EVT_MENU, self.AddShape, id=self.ID_AddShape)
 		self.Bind(wx.EVT_MENU, self.OnDelete, id=wx.ID_DELETE)
 		self.Bind(wx.EVT_MENU, self.OnListDouble, id=wx.ID_EDIT)
+		self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.OnSchemaButton, id=self.ID_SaveSchema)
+		self.Bind(wx.EVT_MENU, self.SaveSchema, id=self.ID_SaveSchema)
+		self.Bind(wx.EVT_MENU, self.LoadSchema, id=self.ID_LoadSchema)
+		self.Bind(wx.EVT_MENU, self.ExportSchema, id=self.ID_ExportSchema)
+		self.Bind(wx.EVT_MENU, self.ImportSchema, id=self.ID_ImportSchema)
 		self.mRepoList.Bind(wx.EVT_LEFT_DCLICK, self.OnListDouble)
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.OnListMenu)
 
@@ -343,6 +374,42 @@ class RepositoryPanel(NbookPanel):
 		if not event.Column:
 			event.Veto()
 
+	def OnSchemaButton(self, event):
+		if event.IsDropDownClicked():
+			tb = event.GetEventObject()
+			tb.SetToolSticky(event.GetId(), True)
+			# line up our menu with the button
+			rect = tb.GetToolRect(event.GetId())
+			pt = tb.ClientToScreen(rect.GetBottomLeft())
+			pt = self.ScreenToClient(pt)
+
+			self.PopupMenu(self._schema_menu, pos=pt)
+			# make sure the button is "un-stuck"
+			tb.SetToolSticky(event.GetId(), False)
+		else:
+			self.SaveSchema(event)
+
+	def SaveSchema(self, event):
+		wx.MessageBox('Save schema', 'ObjRepo')
+		fname = os.path.join(Deca.world.wfs, 'repo_scheme.xml')
+		event.Skip()
+
+	def LoadSchema(self, event):
+		fname = os.path.join(Deca.world.wfs, 'repo_scheme.xml')
+		if os.path.exists(fname) :
+			pass
+		else:
+			wx.MessageBox(_("Can't find saved schema. Nothing to import"), _("Object repository"))
+		event.Skip()
+
+	def ExportSchema(self, event):
+		wx.MessageBox('Export schema', 'ObjRepo')
+		event.Skip()
+
+	def ImportSchema(self, event):
+		wx.MessageBox('Import schema', 'ObjRepo')
+		event.Skip()
+
 	def AddTemplate(self, event):
 		event.GetId()
 		dlg = TmplDialog(self)
@@ -355,11 +422,11 @@ class RepositoryPanel(NbookPanel):
 		if res == wx.ID_OK:
 			tpl = repo.AddTemplate(dlg.txtName.Value)
 			for x in xrange(dlg.attrGrid.GetNumberRows()) :
-				nm = dlg.attrGrid.GetCellValue(x, 0)
-				vl = dlg.attrGrid.GetCellValue(x, 1)
+				nm = dlg.attrGrid.GetCellValue(row = x, col = 0)
+				vl = dlg.attrGrid.GetCellValue(row = x, col = 1)
 				tpl.Attributes[nm] = vl
 			if dlg.TitlePos > -1:
-				tpl.TitleAttr = dlg.attrGrid.GetCellValue(dlg.TitlePos, 0)
+				tpl.TitleAttr = dlg.attrGrid.GetCellValue(row = dlg.TitlePos, col = 0)
 			tpl.Graphics = dlg.shapeSel.GetStringSelection()
 			repo.LazyReindex()
 			self.UpdateView(None)
@@ -375,7 +442,7 @@ class RepositoryPanel(NbookPanel):
 	def AddObject(self, event):
 		event.GetId()
 		dlg = ObjDialog(self)
-		#dlg.AddChoice(wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAMPO_EMPTY), wx.ART_MENU, wx.Size(16, 16)), '', '')
+		#dlg.AddChoice(wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_EMPTY), wx.ART_MENU, wx.Size(16, 16)), '', '')
 		repo = Deca.world.GetLayer(Deca.World.ID_Repository)
 		dlg.Repository = repo
 		dlg.CurrentLayer = repo
@@ -445,7 +512,7 @@ class RepositoryPanel(NbookPanel):
 				dlg.cbProto.Clear()
 				dlg.cbProto.Append("")
 				dlg.cbProto.AppendItems(repo.GetTemplatesNames())
-				dlg.txtName.Value = self.mRepoList.GetItem(idx, 1).Text
+				dlg.txtName.Value = self.mRepoList.GetItem(idx, col = 1).Text
 				dlg.cbProto.StringSelection = dlg.txtName.Value
 				dlg.OnPrototype(event)
 				tpl = repo.GetTemplate(code)
@@ -462,11 +529,11 @@ class RepositoryPanel(NbookPanel):
 					tpl.TitleAttr = None
 					tpl.Attributes.clear()
 					for x in xrange(dlg.attrGrid.GetNumberRows()) :
-						nm = dlg.attrGrid.GetCellValue(x, 0)
-						vl = dlg.attrGrid.GetCellValue(x, 1)
+						nm = dlg.attrGrid.GetCellValue(row = x, col= 0)
+						vl = dlg.attrGrid.GetCellValue(row = x, col= 1)
 						tpl.Attributes[nm] = vl
 					if dlg.TitlePos > -1:
-						tpl.TitleAttr = dlg.attrGrid.GetCellValue(dlg.TitlePos, 0)
+						tpl.TitleAttr = dlg.attrGrid.GetCellValue(row = dlg.TitlePos, col= 0)
 					tpl.Graphics = dlg.shapeSel.GetStringSelection()
 					repo.LazyReindex()
 					self.UpdateView(None)

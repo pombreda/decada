@@ -7,7 +7,7 @@
 #
 # Created:     19.10.2011
 # Copyright:   (c) Stinger 2011
-# Licence:     Private
+# Licence:     LGPL
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 from collections import OrderedDict
@@ -143,11 +143,24 @@ class DecaObject(Persistent):
 		return None
 
 	def GetEngines(self):
+		def genList(base, dirlist):
+			res = []
+			for ent in dirlist:
+				if os.path.isdir(os.path.join(base, ent)):
+					# process subdir
+					nb = os.path.join(base, ent)
+					res.append( (ent, genList(nb, os.listdir(nb))) )
+				else:
+					ft = os.path.splitext(ent)
+					if ft[1].lower() == '.py':
+						res.append(ft[0])
+			return res
+		# main function
 		pl = []
 		if self.TemplateName and self.TemplateName != '' :
 			epath = os.path.join(Deca.world.EnginesPath, self.TemplateName)
 			if os.path.isdir(epath):
-				pl = [os.path.splitext(f)[0] for f in os.listdir(epath) if os.path.splitext(f)[1].lower() == '.py']
+				pl = genList(epath, os.listdir(epath))
 			# if Object's engines
 		# if template given
 		return pl
