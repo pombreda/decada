@@ -467,13 +467,17 @@ class CustomGrid (gridlib.Grid ):
 			return None
 
 	def OnStartEdit(self, evt):
-		wx.GetApp().log("[Custom grid] begin edit")
+		wx.GetApp().log("[Custom grid] begin edit: %s" % evt.EventObject)
 		evt.Skip()
 
 	def OnStopEdit(self, evt):
-		wx.GetApp().log("[Custom grid] finish edit")
+		wx.GetApp().log("[Custom grid] finish edit %s" % evt.EventObject)
 		evt.Skip()
 
 	def OnCreateEditor(self, evt):
-		wx.GetApp().log("[Custom grid] create editor")
+		wx.GetApp().log("[Custom grid] create editor %s" % evt.EventObject)
 		evt.Skip()
+
+	def FixOnClose(self):
+		wx.GetApp().log("[Custom grid] fix-on-exit")
+		pass

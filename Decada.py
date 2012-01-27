@@ -3,9 +3,6 @@
 # Name:        Decada
 # Purpose:     Main module of the Decada framework
 #
-# Author:      Stinger
-#
-# Created:     15.10.2011
 # Copyright:   (c) Triplika 2011
 # Licence:     LGPL
 #-------------------------------------------------------------------------------
@@ -158,7 +155,7 @@ def reports_visit(arg, dname, flist):
 			arg[0].SetPyData(itm, "ReportCod:%s" % os.path.join(dname, f))
 	# all done
 
-class PyAUIFrame(wx.Frame):
+class DecadaFrame(wx.Frame):
 
 	ID_CreateWorld = wx.NewId()
 	ID_SaveWorld = wx.NewId()
@@ -203,7 +200,7 @@ class PyAUIFrame(wx.Frame):
 	updateTree_Engines 	= 0x0002
 	updateTree_Reports 	= 0x0004
 
-	def __init__(self, parent, id=-1, title="", pos=wx.DefaultPosition,
+	def __init__(self, parent, title="", pos=wx.DefaultPosition,
 				 size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE |
 											wx.SUNKEN_BORDER |
 											wx.CLIP_CHILDREN):
@@ -213,7 +210,7 @@ class PyAUIFrame(wx.Frame):
 		wx.ArtProvider.PushProvider(ed_art.EditraArt())
 
 
-		wx.Frame.__init__(self, parent, id, title, pos, size, style)
+		wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
 
 		# tell FrameManager to manage this frame
 		self._mgr = aui.AuiManager()
@@ -226,10 +223,12 @@ class PyAUIFrame(wx.Frame):
 		util.SetWindowIcon(self)
 
 		self.style = Profile_Get('SYNTHEME', 'str', 'default')
-		self.statusbar = self.CreateStatusBar(2) #, wx.ST_SIZEGRIP
-		self.statusbar.SetStatusWidths([-2, -3])
-		self.statusbar.SetStatusText("Ready", 0)
+		self.statusbar = self.CreateStatusBar(4) #, wx.ST_SIZEGRIP
+		self.statusbar.SetStatusWidths([24, -1, 24, 150])
 		self.statusbar.SetStatusText("Welcome To Decada Framework", 1)
+		self._menu_icon = wx.StaticBitmap(self.statusbar, wx.ID_ANY, wx.Image(os.path.join("pixmaps","gohome.png")).ConvertToBitmap())
+		self._status_icon = wx.StaticBitmap(self.statusbar, wx.ID_ANY, wx.Image(os.path.join("pixmaps","ledgray.png")).ConvertToBitmap())
+		self._gauge = wx.Gauge(self.statusbar, wx.ID_ANY)
 
 		# min size for the frame itself isn't completely done.
 		# see the end up FrameManager::Update() for the test
@@ -237,7 +236,7 @@ class PyAUIFrame(wx.Frame):
 		self.SetMinSize(wx.Size(400, 300))
 
 		# create some toolbars
-		tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, aui.AUI_TB_HORZ_LAYOUT | aui.AUI_TB_GRIPPER)
+		tb1 = aui.AuiToolBar(self, -1)
 		tb1.SetToolBitmapSize(wx.Size(16,16))
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_NEW), wx.ART_MENU, wx.Size(16, 16))
 		tb1.AddTool(self.ID_CreateWorld, '', tbmp, tbmp, wx.ITEM_NORMAL,
@@ -296,6 +295,7 @@ class PyAUIFrame(wx.Frame):
 
 		# create some center panes
 		self.nbook = aui.AuiNotebook(self)
+		self.nbook.SetArtProvider(aui.AuiSimpleTabArt())
 		self.shell = PyShellView(self.nbook)
 		if Profile_Get('ALLOW_CONSOLE', 'bool', True):
 			self.AddTab(self.shell, self.shell.Title)
@@ -311,8 +311,7 @@ class PyAUIFrame(wx.Frame):
 
 		self._mgr.AddPane(tb1, aui.AuiPaneInfo().
 						  Name("tb1").Caption("MainToolbar").
-						  ToolbarPane().Top().Row(0).Position(0).
-						  LeftDockable(False).RightDockable(False))
+						  ToolbarPane().Top().Row(0).Position(0))
 
 		# make some default perspectives
 
@@ -338,7 +337,9 @@ class PyAUIFrame(wx.Frame):
 		self._mgr.Update()
 
 		#self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
-		#self.Bind(wx.EVT_SIZE, self.OnSize)
+		self.sizeChanged = False
+		self.Bind(wx.EVT_SIZE, self.OnSize)
+		self.Bind(wx.EVT_IDLE, self.OnIdle)
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.OnPageClose)
 
@@ -431,6 +432,35 @@ class PyAUIFrame(wx.Frame):
 		except:
 			pass
 
+	def OnSize(self, evt):
+		evt.GetId()
+		self.Reposition()  # for normal size events
+
+		# Set a flag so the idle time handler will also do the repositioning.
+		# It is done this way to get around a buglet where GetFieldRect is not
+		# accurate during the EVT_SIZE resulting from a frame maximize.
+		self.sizeChanged = True
+
+	def OnIdle(self, evt):
+		evt.GetId()
+		if self.sizeChanged:
+			self.Reposition()
+
+	# reposition the checkbox
+	def Reposition(self):
+		rect = self.statusbar.GetFieldRect(0)
+		self._menu_icon.SetPosition((rect.x+2, rect.y+2))
+		self._menu_icon.SetSize((rect.width-4, rect.height-4))
+
+		rect = self.statusbar.GetFieldRect(2)
+		self._status_icon.SetPosition((rect.x+2, rect.y+2))
+		self._status_icon.SetSize((rect.width-4, rect.height-4))
+
+		rect = self.statusbar.GetFieldRect(3)
+		self._gauge.SetPosition((rect.x+2, rect.y+2))
+		self._gauge.SetSize((rect.width-4, rect.height-4))
+		self.sizeChanged = False
+
 	def ClosePage(self, idx):
 		pg = self.nbook.GetPage(idx)
 		if pg.Tag == 'Console' :
@@ -458,6 +488,7 @@ class PyAUIFrame(wx.Frame):
 		wx.GetApp().self.ReloadTranslation()
 		self.UpdateColors(Profile_Get('SYNTHEME', 'default'))
 		self.UpdateWorldTree()
+		self.SetTitle(_('[Untitled] - Decada Framework'))
 
 	def DoOpenWorld(self, event):
 		evt_id = event.GetId()
@@ -529,6 +560,8 @@ class PyAUIFrame(wx.Frame):
 				pdata = Profile_Get('WINDOW_LAYOUT', default=None)
 				if pdata:
 					self._mgr.LoadPerspective(pdata)
+				# set window title
+				self.SetTitle(_('[%s] - Decada Framework') % os.path.basename(Deca.world.Filename))
 			# if file selected
 		elif evt_id == self.ID_OpenWorldMerge:
 			wx.MessageBox(_("Not implemented yet!"), _("Decada Framework"))
@@ -582,6 +615,7 @@ class PyAUIFrame(wx.Frame):
 				pg_list.append((pg.Tag, pg.GetParams(), idx == active_idx))
 		Profile_Set('VIEW_PAGES', pg_list)
 		Deca.world.Save(fname)
+		self.SetTitle(_('[%s] - Decada Framework') % os.path.basename(Deca.world.Filename))
 
 	def OnPageClose(self, event):
 		if self.nbook.GetPage(self.nbook.GetSelection()).Tag == "Console":
@@ -1190,7 +1224,7 @@ All data owned by this layer will be lost!"""), _("Decada Framework"), wx.YES_NO
 			self._mgr.ClosePane(pinfo)
 			self._mgr.DetachPane(self.tb2)
 			self.tb2.Destroy()
-		self.tb2 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, aui.AUI_TB_HORZ_LAYOUT)
+		self.tb2 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
 		self.tb2.SetToolBitmapSize(wx.Size(16,16))
 		self.tb2.AddSpacer(1)
 
@@ -1204,7 +1238,7 @@ All data owned by this layer will be lost!"""), _("Decada Framework"), wx.YES_NO
 		self._mgr.AddPane(self.tb2, aui.AuiPaneInfo().
 						  Name("tb2").Caption("World Toolbar").
 						  ToolbarPane().Top().Row(0).Position(1).
-						  LeftDockable(False).RightDockable(False))
+						  LeftDockable(True).RightDockable(True))
 		self.tb2.Refresh()
 		self._mgr.Update()
 		wx.CallAfter(self._FixTbarsView)
@@ -1224,10 +1258,44 @@ All data owned by this layer will be lost!"""), _("Decada Framework"), wx.YES_NO
 		self.Bind(wx.EVT_MENU, handler, id=tool_id)
 		self.log('[AddUserTool][dbg] Tool ID=%s binded' % tool_id)
 
-# -----------------------------------------------------------------
-# main Application class
-# -----------------------------------------------------------------
+###########################################################################
+## Class DSplashScreen
+###########################################################################
+class DSplashScreen(wx.SplashScreen):
+	def __init__(self):
+		bmp = wx.Image(os.path.join("pixmaps","splash.png")).ConvertToBitmap()
+		wx.SplashScreen.__init__(self, bmp,
+								 wx.SPLASH_CENTRE_ON_SCREEN | wx.SPLASH_TIMEOUT,
+								 5000, None, -1)
+		self.Bind(wx.EVT_CLOSE, self.OnClose)
+		self.fc = wx.FutureCall(2000, self.ShowMain)
 
+
+	def OnClose(self, evt):
+		# Make sure the default handler runs too so this window gets
+		# destroyed
+		evt.Skip()
+		self.Hide()
+
+		# if the timer is still running then go ahead and show the
+		# main frame now
+		if self.fc.IsRunning():
+			self.fc.Stop()
+			self.ShowMain()
+
+
+	def ShowMain(self):
+		frame = DecadaFrame(None, _("Decada Framework"), size=(750, 570))
+		frame.Show()
+		wx.GetApp().SetTopWindow(frame)
+		wx.GetApp().frame = frame
+		wx.GetApp().log.Frame = frame
+		if self.fc.IsRunning():
+			self.Raise()
+
+###########################################################################
+## main Application class
+###########################################################################
 class RunApp(wx.App):
 	def __init__(self, name):
 		self.name = name
@@ -1252,6 +1320,13 @@ class RunApp(wx.App):
 		wx.Log_SetActiveTarget(wx.LogStderr())
 
 		self.SetAssertMode(assertMode)
+		# Create and show the splash screen.  It will then create and show
+		# the main frame when it is time to do so.
+		wx.SystemOptions.SetOptionInt("mac.window-plain-transition", 1)
+		self.SetAppName("Decada")
+
+		splash = DSplashScreen()
+		splash.Show()
 
 		# Resolve resource locations
 		ed_glob.CONFIG['CONFIG_DIR'] = self.curr_dir
@@ -1277,15 +1352,8 @@ class RunApp(wx.App):
 		self._pluginmgr = plugin.PluginManager()
 
 		self.ReloadTranslation()
-		
+
 		ogl.OGLInitialize()
-		frame = PyAUIFrame(None, wx.ID_ANY, "Decada Framework", size=(750, 570))
-		frame.Show(True)
-
-		self.SetTopWindow(frame)
-		self.frame = frame
-		self.log.Frame = frame
-
 		return True
 
 	def OnExit(self):
