@@ -751,7 +751,7 @@ class GraphPanel(NbookPanel):
 		NbookPanel.__init__ ( self, parent, id, pos, size, style, name )
 		self.Tag = "Graph"
 		self.Title = title
-		self.icon = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECADA_LAYER), wx.ART_MENU, wx.Size(16, 16))
+		self.icon = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_LAYER), wx.ART_MENU, wx.Size(16, 16))
 		self.log = wx.GetApp().GetLog()
 		self.object_filter = None
 		self.link_filter = None
@@ -762,11 +762,11 @@ class GraphPanel(NbookPanel):
 		#self.mtb = wx.ToolBar( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
 		self.mtb = aui.AuiToolBar(self, -1)
 		self.mtb.SetToolBitmapSize(wx.Size(16,16))
-		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECADA_LAYOUT), wx.ART_MENU, wx.Size(16, 16))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_LAYOUT), wx.ART_MENU, wx.Size(16, 16))
 		self.mtb.AddTool(wx.ID_SETUP, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Layout"), _("Change graph layout"), None)
 		self.mtb.SetToolDropDown(wx.ID_SETUP, True)
-		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECADA_FILTER), wx.ART_MENU, wx.Size(16, 16))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_FILTER), wx.ART_MENU, wx.Size(16, 16))
 		self.mtb.AddTool(wx.ID_FILE1, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Filter"), _("Set filter to view"), None)
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_PREF), wx.ART_MENU, wx.Size(16, 16))
@@ -950,7 +950,7 @@ class GraphPanel(NbookPanel):
 		if event is not None:
 			event.GetId()
 		dlg = ObjDialog(self)
-		#dlg.AddChoice(wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECADA_EMPTY), wx.ART_MENU, wx.Size(16, 16)), '', '')
+		#dlg.AddChoice(wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_EMPTY), wx.ART_MENU, wx.Size(16, 16)), '', '')
 		repo = Deca.world.GetLayer(Deca.World.ID_Repository)
 		dlg.Repository = repo
 		dlg.CurrentLayer = self.graph

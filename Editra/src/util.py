@@ -732,10 +732,10 @@ def SetWindowIcon(window):
     """
     try:
         if wx.Platform == "__WXMSW__":
-            ed_icon = os.path.join(ed_glob.CONFIG['SYSPIX_DIR'], u"icon.ico")
+            ed_icon = os.path.join(ed_glob.CONFIG['SYSPIX_DIR'], u"sampo.ico")
             window.SetIcon(wx.Icon(ed_icon, wx.BITMAP_TYPE_ICO))
         else:
-            ed_icon = os.path.join(ed_glob.CONFIG['SYSPIX_DIR'], u"icon.png")
+            ed_icon = os.path.join(ed_glob.CONFIG['SYSPIX_DIR'], u"sampo.png")
             window.SetIcon(wx.Icon(ed_icon, wx.BITMAP_TYPE_PNG))
     finally:
         pass
