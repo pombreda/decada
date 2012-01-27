@@ -13,10 +13,8 @@
 import os
 import sys
 import wx
-import imp
 import wx.lib.agw.aui as aui
 import wx.lib.ogl as ogl
-import shutil
 
 from Editra.src.profiler import Profile_Get, Profile_Set
 from Editra.src import ed_style
@@ -25,22 +23,21 @@ import Editra.src.ed_glob as ed_glob
 import Editra.src.util as util
 import Editra.src.plugin as plugin
 import Editra.src.profiler as profiler
-import Editra.src.syntax.synglob as synglob
 import Editra.src.ed_i18n as ed_i18n
+import HgCommon
 
 from NbookPanel import PyShellView
+import RepoView
 from ShapeEditor import ShapeEdPanel
 import ScEditor
+import Explorer
 import ScGraph
 import Settings
 import ObjRepo
-import PyShell
 import PropertySheet
 import HtmlView
 import ImgView
-from Deca.Utility import ImportPackage, GetModule
 from AboutDlg import AboutBox
-from Reporter import ReportGenerator
 
 import Deca
 
@@ -66,7 +63,7 @@ class Log:
 		try:
 			if self.Frame is not None:
 				self.Frame.LogMessage(text)
-		except:
+		except Exception:
 			pass
 
 	write = WriteText
@@ -74,89 +71,6 @@ class Log:
 
 	def flush(self):
 		pass
-
-def engine_image(d, f):
-	if os.path.isdir(os.path.join(d, f)):
-		if os.path.exists(os.path.join(os.path.join(d, f), '__init__.py')):
-			# import package
-			pkf = os.path.join(d, f)
-			pkn = pkf.replace(Deca.world.EnginesPath, '').replace(os.sep, '.')
-			if pkn.startswith('.'):
-				pkn = pkn[1:]
-			app.log("[engines][dbg] Add package %s (%s)" % (pkn, pkf))
-			try:
-				ImportPackage(pkn, pkf)
-			except ImportError as cond:
-				log = wx.GetApp().GetLog()
-				log("[Engine rescan][err] %s" % cond)
-			return 2 # imagelist.PACKAGE
-		return 3 # imagelist.FOLDER
-	ext = os.path.splitext(f)[1].lower()
-	if ext == '.py':
-		return 4 # imagelist.PYTHON
-	if ext == '.pyc':
-		return 5 # imagelist.PYTHON_BIN
-	return 99 # imagelist.BAD_IMAGE
-
-def engine_file(d, f):
-	if os.path.isdir(os.path.join(d, f)):
-		return True
-	ext = os.path.splitext(f)[1].lower()
-	if ext == '.py':
-		return True
-	if ext == '.pyc':
-		return True
-	return False
-
-def engine_src(f, d):
-	n, e = os.path.splitext(f)
-	e = e[1:].lower()
-	t = n + '.py'
-	if e == 'pyc' and t in d.keys():
-		return False
-	return True
-
-def engine_visit(arg, dname, flist):
-	#find parent on current dirname
-	parent = arg[1][dname]
-	# transform flist into dict fname -> image, remove uninteresting entries
-	folder = { f:engine_image(dname, f) for f in flist if engine_file(dname, f) }
-	# remove binaries if source exists
-	folder = { f:i for f,i in folder.items() if engine_src(f, folder)}
-	# add items
-	rp = parent
-	for f,i in folder.items() :
-		itm = rp = arg[0].InsertItem(parent, rp, os.path.splitext(f)[0], i)
-		if i == 2 or i == 3:
-			arg[1][os.path.join(dname, f)] = itm
-			arg[0].SetPyData(itm, "EngineDir:%s" % os.path.join(dname, f))
-		else:
-			arg[0].SetPyData(itm, "EngineCod:%s" % os.path.join(dname, f))
-	# all done
-
-def report_image(d, f):
-	if os.path.isdir(os.path.join(d, f)):
-		return 3 # imagelist.FOLDER
-	ext = os.path.splitext(f)[1].lower()
-	if ext == '.xml':
-		return 6 # imagelist.REPORT
-	return 99 # imagelist.BAD_IMAGE
-
-def reports_visit(arg, dname, flist):
-	#find parent on current dirname
-	parent = arg[1][dname]
-	# transform flist into dict fname -> image, remove uninteresting entries
-	folder = { f:report_image(dname, f) for f in flist if os.path.splitext(f)[1].lower() == '.xml' or os.path.isdir(os.path.join(dname, f)) }
-	# add items
-	rp = parent
-	for f,i in folder.items() :
-		itm = rp = arg[0].InsertItem(parent, rp, os.path.splitext(f)[0], i)
-		if i == 3:
-			arg[1][os.path.join(dname, f)] = itm
-			arg[0].SetPyData(itm, "ReportDir:%s" % os.path.join(dname, f))
-		else:
-			arg[0].SetPyData(itm, "ReportCod:%s" % os.path.join(dname, f))
-	# all done
 
 class PyAUIFrame(wx.Frame):
 
@@ -174,34 +88,10 @@ class PyAUIFrame(wx.Frame):
 	ID_ViewLogger = wx.NewId()
 	ID_ViewConsole = wx.NewId()
 	ID_ItemMenu = wx.NewId()
-	ID_AddLayer = wx.NewId()
-	ID_RemoveLayer = wx.NewId()
 	ID_ImageLib = wx.NewId()
-	ID_AddEFolder = wx.NewId()
-	ID_AddEPackage = wx.NewId()
-	ID_AddECode = wx.NewId()
-	ID_ReloadEPackage = wx.NewId()
-	ID_ERemove = wx.NewId()
-	ID_ERefresh = wx.NewId()
-	ID_OpenECode = wx.NewId()
-	ID_RunECode = wx.NewId()
-	ID_ImportECode = wx.NewId()
-	ID_AddRFolder = wx.NewId()
-	ID_AddRCode = wx.NewId()
-	ID_RRemove = wx.NewId()
-	ID_RGenerate = wx.NewId()
-	ID_RefreshWorld = wx.NewId()
-	ID_RefreshLayers = wx.NewId()
-	ID_RefreshEngines = wx.NewId()
-	ID_RefreshReports = wx.NewId()
 	ID_HelpView = wx.NewId()
 
 	ID_UserButton = wx.NewId()
-
-	updateTree_All 		= 0xFFFF
-	updateTree_Layers 	= 0x0001
-	updateTree_Engines 	= 0x0002
-	updateTree_Reports 	= 0x0004
 
 	def __init__(self, parent, title="", pos=wx.DefaultPosition,
 				 size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE |
@@ -215,10 +105,6 @@ class PyAUIFrame(wx.Frame):
 
 		wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
 
-		# tell FrameManager to manage this frame
-		self._mgr = aui.AuiManager()
-		self._mgr.SetManagedWindow(self)
-
 		self._perspectives = []
 		self.n = 0
 		self.x = 0
@@ -226,13 +112,24 @@ class PyAUIFrame(wx.Frame):
 		util.SetWindowIcon(self)
 
 		self.style = Profile_Get('SYNTHEME', 'str', 'default')
-		self.statusbar = self.CreateStatusBar(4) #, wx.ST_SIZEGRIP
-		self.statusbar.SetStatusWidths([24, -1, 24, 150])
-		self.statusbar.SetStatusText("Welcome To Sampo Framework", 1)
-		self._menu_icon = wx.StaticBitmap(self.statusbar, wx.ID_ANY, wx.Image(os.path.join("pixmaps","gohome.png")).ConvertToBitmap())
+		self.statusbar = self.CreateStatusBar(3) #, wx.ST_SIZEGRIP
+		self.statusbar.SetStatusWidths([-1, 24, 150])
+		self.statusbar.SetStatusText(_("Welcome To Sampo Framework"), 0)
 		self._status_icon = wx.StaticBitmap(self.statusbar, wx.ID_ANY, wx.Image(os.path.join("pixmaps","ledgray.png")).ConvertToBitmap())
 		self._gauge = wx.Gauge(self.statusbar, wx.ID_ANY)
+		self._gauge.SetRange(100)
 
+		# tell FrameManager to manage this frame
+		self._mgr = aui.AuiManager()
+		self._mgr.SetManagedWindow(self)
+
+		#   Open sub-menu
+		self._open_menu = wx.Menu()
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_FOLDER), wx.ART_MENU, wx.Size(16, 16))
+		mi = self._open_menu.AppendItem( wx.MenuItem( self._open_menu, self.ID_OpenWorldFile, _("&Open world")) )
+		mi.SetBitmap(tbmp)
+		self._open_menu.AppendItem( wx.MenuItem( self._open_menu, self.ID_OpenWorldMerge, _("Merge with another world")) )
+		self._open_menu.AppendItem( wx.MenuItem( self._open_menu, self.ID_OpenWorldReduced, _("Open world without restoring views")) )
 		# min size for the frame itself isn't completely done.
 		# see the end up FrameManager::Update() for the test
 		# code. For now, just hard code a frame minimum size
@@ -256,13 +153,13 @@ class PyAUIFrame(wx.Frame):
 						_("Options"), _("Tune the framework"), None)
 		tb1.AddSeparator()
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_LAYER), wx.ART_MENU, wx.Size(16, 16))
-		tb1.AddTool(self.ID_AddLayer, '', tbmp, tbmp, wx.ITEM_NORMAL,
+		tb1.AddTool(Explorer.expPanel.ID_AddLayer, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Add layer"), _("Create new empty layer"), None)
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_IMAGES), wx.ART_MENU, wx.Size(16, 16))
 		tb1.AddTool(self.ID_ImageLib, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Images"), _("Edit images library"), None)
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_ENGINE), wx.ART_MENU, wx.Size(16, 16))
-		tb1.AddTool(self.ID_ERefresh, '', tbmp, tbmp, wx.ITEM_NORMAL,
+		tb1.AddTool(Explorer.expPanel.ID_ERefresh, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Reload engines"), _("Rebuild engines tree and reinitialize packages"), None)
 		tb1.AddSeparator()
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_COMPUTER), wx.ART_MENU, wx.Size(16, 16))
@@ -283,9 +180,8 @@ class PyAUIFrame(wx.Frame):
 						  Name("props").Caption("Properties").
 						  Right().CloseButton(True).MaximizeButton(True))
 		self.propgrid.SetPropObject(Deca.world)
-		self.explorer = wx.TreeCtrl(self, -1, wx.Point(0, 0), wx.Size(160, 250),
-						   wx.TR_DEFAULT_STYLE | wx.NO_BORDER)
-		self.UpdateWorldTree()
+		self.explorer = Explorer.expPanel(self, wx.Point(0, 0), wx.Size(160, 250))
+		self.explorer.UpdateWorldTree()
 		self._mgr.AddPane(self.explorer, aui.AuiPaneInfo().
 						  Name("explorer").Caption("World").
 						  Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True))
@@ -298,13 +194,9 @@ class PyAUIFrame(wx.Frame):
 
 		# create some center panes
 		self.nbook = aui.AuiNotebook(self)
-		self.nbook.SetArtProvider(aui.AuiSimpleTabArt())
 		self.shell = PyShellView(self.nbook)
 		if Profile_Get('ALLOW_CONSOLE', 'bool', True):
 			self.AddTab(self.shell, self.shell.Title)
-		#self.CreateGraphWindow("Graph")
-		#pg = ObjRepo.RepositoryPanel(self)
-		#self.AddTab(pg, pg.Title)
 		self.UpdateIndexes()
 
 		self._mgr.AddPane(self.nbook, aui.AuiPaneInfo().Name("notebook").
@@ -314,7 +206,8 @@ class PyAUIFrame(wx.Frame):
 
 		self._mgr.AddPane(tb1, aui.AuiPaneInfo().
 						  Name("tb1").Caption("MainToolbar").
-						  ToolbarPane().Top().Row(0).Position(0))
+						  ToolbarPane().Top().Row(0).Position(0).
+						  LeftDockable(False).RightDockable(False))
 
 		# make some default perspectives
 
@@ -323,6 +216,7 @@ class PyAUIFrame(wx.Frame):
 		all_panes = self._mgr.GetAllPanes()
 
 		for ii in xrange(len(all_panes)):
+			all_panes[ii].MinimizeMode(aui.AUI_MINIMIZE_CAPT_SMART | (all_panes[ii].GetMinimizeMode() & aui.AUI_MINIMIZE_POS_MASK))
 			if not all_panes[ii].IsToolbar():
 				all_panes[ii].Hide()
 
@@ -361,29 +255,7 @@ class PyAUIFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnAbout, id=self.ID_About)
 		self.Bind(wx.EVT_MENU, self.OnHelpView, id=self.ID_HelpView) 
 		self.Bind(wx.EVT_MENU, self.OnImageLib, id=self.ID_ImageLib) 
-		self.Bind(wx.EVT_MENU, self.OnNewLayer, id=self.ID_AddLayer)
-
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_AddEFolder)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_AddEPackage)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_AddECode)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_ERemove)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_OpenECode)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_RunECode)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_ReloadEPackage)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_ImportECode)
-		self.Bind(wx.EVT_MENU, self.OnEngineMenu, id=self.ID_ERefresh)
-
-		self.Bind(wx.EVT_MENU, self.OnReportMenu, id=self.ID_AddRFolder)
-		self.Bind(wx.EVT_MENU, self.OnReportMenu, id=self.ID_AddRCode)
-		self.Bind(wx.EVT_MENU, self.OnReportMenu, id=self.ID_RRemove)
-		self.Bind(wx.EVT_MENU, self.OnReportMenu, id=self.ID_RGenerate)
-
-		self.Bind(wx.EVT_MENU, self.OnLayerMenu, id=self.ID_RemoveLayer)
-
-		self.Bind(wx.EVT_MENU, self.OnRefreshWorld, id=self.ID_RefreshWorld)
-		self.Bind(wx.EVT_MENU, self.OnRefreshWorld, id=self.ID_RefreshLayers)
-		self.Bind(wx.EVT_MENU, self.OnRefreshWorld, id=self.ID_RefreshEngines)
-		self.Bind(wx.EVT_MENU, self.OnRefreshWorld, id=self.ID_RefreshReports)
+		self.Bind(wx.EVT_MENU, self.OnNewLayer, id=Explorer.expPanel.ID_AddLayer)
 
 		#self.Bind(wx.EVT_MENU, self.OnContextMenu, id=self.ID_ViewMenu)
 		self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.OnPaneViewMenu, id=self.ID_ViewMenu)
@@ -391,15 +263,13 @@ class PyAUIFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnContextMenu, id=self.ID_ViewProps)
 		self.Bind(wx.EVT_MENU, self.OnContextMenu, id=self.ID_ViewLogger)
 		self.Bind(wx.EVT_MENU, self.OnContextMenu, id=self.ID_ViewConsole)
-		self.Bind(wx.EVT_TREE_ITEM_MENU, self.OnViewMenu)
-		self.explorer.Bind( wx.EVT_LEFT_DCLICK, self.OnExplDouble )
-		self.explorer.Bind( wx.EVT_TREE_SEL_CHANGED, self.OnExplChaged )
 
 		self.Bind(wx.EVT_MENU, self.DispatchToControl, id=ed_glob.ID_SHOW_AUTOCOMP)
 		self.Bind(wx.EVT_MENU, self.DispatchToControl, id=wx.ID_SAVE)
 		self.Bind(wx.EVT_MENU, self.DispatchToControl, id=wx.ID_OPEN)
 		self.Bind(wx.EVT_MENU, self.DispatchToControl, id=wx.ID_FIND)
 		accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord(' '), ed_glob.ID_SHOW_AUTOCOMP ),
+										 (wx.ACCEL_CTRL, ord('Q'), wx.ID_EXIT),
 										 (wx.ACCEL_CTRL, ord('S'), wx.ID_SAVE),
 										 (wx.ACCEL_CTRL, ord('O'), wx.ID_OPEN),
 										 (wx.ACCEL_CTRL, ord('F'), wx.ID_FIND)
@@ -419,6 +289,7 @@ class PyAUIFrame(wx.Frame):
 		for child in self.nbook.GetChildren():
 			if isinstance(child, aui.AuiTabCtrl):
 				child.Bind(wx.EVT_LEFT_DCLICK, self.OnTabCtrlLeftDClick)
+		self.Update()
 
 	def UpdateIndexes(self):
 		"""Update all page indexes"""
@@ -432,7 +303,7 @@ class PyAUIFrame(wx.Frame):
 		#skip mode
 		try:
 			self.logger.AppendText(text + "\n")
-		except:
+		except Exception:
 			pass
 
 	def OnSize(self, evt):
@@ -451,27 +322,14 @@ class PyAUIFrame(wx.Frame):
 
 	# reposition the checkbox
 	def Reposition(self):
-		rect = self.statusbar.GetFieldRect(0)
-		self._menu_icon.SetPosition((rect.x+2, rect.y+2))
-		self._menu_icon.SetSize((rect.width-4, rect.height-4))
-
-		rect = self.statusbar.GetFieldRect(2)
+		rect = self.statusbar.GetFieldRect(1)
 		self._status_icon.SetPosition((rect.x+2, rect.y+2))
 		self._status_icon.SetSize((rect.width-4, rect.height-4))
 
-		rect = self.statusbar.GetFieldRect(3)
+		rect = self.statusbar.GetFieldRect(2)
 		self._gauge.SetPosition((rect.x+2, rect.y+2))
 		self._gauge.SetSize((rect.width-4, rect.height-4))
 		self.sizeChanged = False
-
-	def ClosePage(self, idx):
-		pg = self.nbook.GetPage(idx)
-		if pg.Tag == 'Console' :
-			self.nbook.RemovePage(idx)
-			self.shell.Hide()
-			Profile_Set('SHOW_CONSOLE', False)
-		else:
-			self.nbook.DeletePage(idx)
 
 	def OnNewWorld(self, event):
 		if Deca.world.Modified:
@@ -488,9 +346,9 @@ class PyAUIFrame(wx.Frame):
 		if Profile_Get('SHOW_CONSOLE', 'bool', True):
 			self.shell.Show()
 			self.AddTab(self.shell, self.shell.Title)
-		wx.GetApp().self.ReloadTranslation()
+		wx.GetApp().ReloadTranslation()
 		self.UpdateColors(Profile_Get('SYNTHEME', 'default'))
-		self.UpdateWorldTree()
+		self.explorer.UpdateWorldTree()
 		self.SetTitle(_('[Untitled] - Sampo Framework'))
 
 	def DoOpenWorld(self, event):
@@ -512,6 +370,19 @@ class PyAUIFrame(wx.Frame):
 				profiler.TheProfile.Load(os.path.join(ed_glob.CONFIG['PROFILE_DIR'], "default.ppb"))
 				wx.GetApp().ReloadTranslation()
 				profiler.TheProfile.Update()
+				if Deca.world.HgRepository.User == '':
+					Deca.world.HgRepository.User = Profile_Get('HG_USER', 'str', '')
+					Deca.world.HgRepository.Password = Profile_Get('HG_PASSWD', 'str', '')
+					Deca.world.HgRepository.reopen()
+				try:
+					HgCommon.HgSync(Deca.world.HgRepository, None)
+					Deca.world.HgRepository.SwitchToLocal()
+					Deca.world.HgRepository.commit('Automatic sync to server on startup')
+				except Exception as cond:
+					self.LogMessage("[Source control][err] Synchronize failed: %s" % cond)
+				finally:
+					Deca.world.HgRepository.SwitchToLocal()
+
 
 				if Profile_Get('SHOW_CONSOLE', 'bool', True):
 					self.shell.Show()
@@ -522,6 +393,7 @@ class PyAUIFrame(wx.Frame):
 						tag = pg[0]
 						#self.log("[DoOpenWorld][dbg] page = %s" % str(pg))
 						if tag == "Text":
+							fn = ''
 							if pg[1][1] == ScEditor.EditorPanel.ED_TypeScript:
 								fn = os.path.join(Deca.world.EnginesPath, pg[1][0])
 							elif pg[1][1] == ScEditor.EditorPanel.ED_TypeReport:
@@ -541,6 +413,9 @@ class PyAUIFrame(wx.Frame):
 						elif tag == "Repo":
 							px = ObjRepo.RepositoryPanel(self)
 							self.AddTab(px, px.Title, active=pg[2])
+						elif tag == "RepoView":
+							px = RepoView.RepoView(self)
+							self.AddTab(px, px.Title, active=pg[2])
 						elif tag == "HtmlView":
 							px = HtmlView.HtmlPanel(self)
 							self.AddTab(px, px.Title, active=pg[2])
@@ -550,21 +425,23 @@ class PyAUIFrame(wx.Frame):
 					# for each saved page
 				# if need to restore pages
 				self.UpdateColors(Profile_Get('SYNTHEME', default='default'))
-				self.UpdateWorldTree()
+				self.explorer.UpdateWorldTree()
 				# restore window position
 				pdata = Profile_Get('WINDOW_STATE', default=False)
 				self.Maximize(pdata)
-				pdata = Profile_Get('WINDOW_POS', default=None)
+				pdata = Profile_Get('WINDOW_POS') #, default=None
 				if pdata:
 					self.SetPosition(pdata)
-				pdata = Profile_Get('WINDOW_SIZE', default=None)
+				pdata = Profile_Get('WINDOW_SIZE') #, default=None
 				if pdata:
 					self.SetSize(pdata)
-				pdata = Profile_Get('WINDOW_LAYOUT', default=None)
+				pdata = Profile_Get('WINDOW_LAYOUT') #, default=None
 				if pdata:
 					self._mgr.LoadPerspective(pdata)
-				# set window title
-				self.SetTitle(_('[%s] - Decada Framework') % os.path.basename(Deca.world.Filename))
+				Deca.world.HgRepository.User = Profile_Get('HG_USER', '')
+				Deca.world.HgRepository.Password = Profile_Get('HG_PASSWD', '')
+				Deca.world.HgRepository.AddRemove = Profile_Get('HG_AUTOFILES', '')
+				self.SetTitle(_('[%s] - Sampo Framework') % os.path.basename(Deca.world.Filename))
 			# if file selected
 		elif evt_id == self.ID_OpenWorldMerge:
 			wx.MessageBox(_("Not implemented yet!"), _("Sampo Framework"))
@@ -575,17 +452,12 @@ class PyAUIFrame(wx.Frame):
 		if event.IsDropDownClicked():
 			tb = event.GetEventObject()
 			tb.SetToolSticky(event.GetId(), True)
-			# create the popup menu
-			cntxMenu = wx.Menu()
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_OpenWorldFile, _("&Open world")) )
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_OpenWorldMerge, _("Merge with another world")) )
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_OpenWorldReduced, _("Open world without restoring views")) )
 			# line up our menu with the button
 			rect = tb.GetToolRect(event.GetId())
 			pt = tb.ClientToScreen(rect.GetBottomLeft())
 			pt = self.ScreenToClient(pt)
 
-			self.PopupMenu(cntxMenu, pt)
+			self.PopupMenu(self._open_menu, pos=pt)
 			# make sure the button is "un-stuck"
 			tb.SetToolSticky(event.GetId(), False)
 		else:
@@ -601,6 +473,8 @@ class PyAUIFrame(wx.Frame):
 								style=wx.FD_SAVE)
 			if dlg.ShowModal() == wx.ID_OK :
 				fname = dlg.Path
+				if os.path.splitext(fname)[1].lower() != '.deca' :
+					fname += '.deca'
 			else :
 				return
 		profiler.TheProfile.Write(Profile_Get('MYPROFILE'))
@@ -609,6 +483,9 @@ class PyAUIFrame(wx.Frame):
 		Profile_Set('WINDOW_SIZE', self.GetSizeTuple())
 		Profile_Set('WINDOW_STATE', self.IsMaximized())
 		Profile_Set('WINDOW_LAYOUT', self._mgr.SavePerspective())
+		Profile_Set('HG_USER', Deca.world.HgRepository.User)
+		Profile_Set('HG_PASSWD', Deca.world.HgRepository.Password)
+		Profile_Set('HG_AUTOFILES', Deca.world.HgRepository.AddRemove)
 		# save open tabs
 		pg_list = []
 		active_idx = self.nbook.GetSelection()
@@ -618,13 +495,24 @@ class PyAUIFrame(wx.Frame):
 				pg_list.append((pg.Tag, pg.GetParams(), idx == active_idx))
 		Profile_Set('VIEW_PAGES', pg_list)
 		Deca.world.Save(fname)
-		self.SetTitle(_('[%s] - Decada Framework') % os.path.basename(Deca.world.Filename))
+		self.SetTitle(_('[%s] - Sampo Framework') % os.path.basename(Deca.world.Filename))
 
 	def OnPageClose(self, event):
-		if self.nbook.GetPage(self.nbook.GetSelection()).Tag == "Console":
-			self.nbook.RemovePage(self.nbook.GetSelection())
+		self.ClosePage(self.nbook.GetSelection())
+		event.Veto()
+
+	def ClosePage(self, idx):
+		"""ClosePage(self, idx)
+
+		Closes notebook page by index. May be used in user scripts.
+		"""
+		pg = self.nbook.GetPage(idx)
+		if pg.Tag == 'Console' :
+			self.nbook.RemovePage(idx)
 			self.shell.Hide()
-			event.Veto()
+			Profile_Set('SHOW_CONSOLE', False)
+		else:
+			self.nbook.DeletePage(idx)
 
 	def IsEditorMaximized(self):
 		"""Is the editor pane maximized?
@@ -659,8 +547,7 @@ class PyAUIFrame(wx.Frame):
 
 	def OnPaneClose(self, event):
 		#caption = event.GetPane().name
-		event.GetId()
-		pass
+		event.Skip()
 #        if caption in [u"logger", u"explorer", u"props"]:
 #            event.GetPane().Hide()
 #            event.Veto()
@@ -679,7 +566,8 @@ class PyAUIFrame(wx.Frame):
 		if evt.GetId() == wx.ID_SAVE:
 			self.OnSaveWorld(evt)
 		if evt.GetId() == wx.ID_OPEN:
-			self.OnOpenWorld(evt)			
+			evt.SetId(self.ID_OpenWorldFile)
+			self.DoOpenWorld(evt)			
 		pass
 
 	def OnClose(self, event):
@@ -688,144 +576,6 @@ class PyAUIFrame(wx.Frame):
 		self._mgr.UnInit()
 		del self._mgr
 		self.Destroy()
-
-	def OnViewMenu(self, event):
-		event.GetId()
-		i = event.EventObject.Selection
-		if i.IsOk() :
-			ttl = event.EventObject.GetItemPyData(i)
-			if ttl == 'World':
-				cntxMenu = wx.Menu()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_AddLayer, _("Add new layer"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendSeparator()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RefreshWorld, _("Refresh all"), wx.EmptyString, wx.ITEM_NORMAL ))
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RefreshLayers, _("Refresh layers"), wx.EmptyString, wx.ITEM_NORMAL ))
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RefreshEngines, _("Refresh engines"), wx.EmptyString, wx.ITEM_NORMAL ))
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RefreshReports, _("Refresh reports"), wx.EmptyString, wx.ITEM_NORMAL ))
-				pt = event.GetPoint()
-				pt.x += event.EventObject.Position.x
-				pt.y += event.EventObject.Position.y
-				self.PopupMenu( cntxMenu, pos=pt )
-			elif ttl[0:9] == 'EngineDir':
-				pth = ttl[10:]
-				cntxMenu = wx.Menu()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_AddEFolder, _("Add new folder"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_AddEPackage, _("Add new package"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_AddECode, _("Add new code"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				if os.path.exists(os.path.join(pth, '__init__.py')):
-					cntxMenu.AppendSeparator()
-					cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_ReloadEPackage, _("Reload package"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendSeparator()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_ERemove, _("Remove"), wx.EmptyString, wx.ITEM_NORMAL ))
-				if pth == Deca.world.EnginesPath:
-					cntxMenu.Enable(self.ID_ERemove, enable=False)
-				pt = event.GetPoint()
-				pt.x += event.EventObject.Position.x
-				pt.y += event.EventObject.Position.y
-				self.PopupMenu( cntxMenu, pos=pt )
-			elif ttl[0:9] == 'EngineCod':
-				cntxMenu = wx.Menu()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_OpenECode, _("Open"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RunECode, _("Run code"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_ImportECode, _("Import as module"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendSeparator()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_ERemove, _("Remove"), wx.EmptyString, wx.ITEM_NORMAL ))
-				pt = event.GetPoint()
-				pt.x += event.EventObject.Position.x
-				pt.y += event.EventObject.Position.y
-				self.PopupMenu( cntxMenu, pos=pt )
-			elif ttl[0:9] == 'ReportDir':
-				pth = ttl[10:]
-				cntxMenu = wx.Menu()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_AddRFolder, _("Add new folder"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_AddRCode, _("Add new report"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendSeparator()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RRemove, _("Remove"), wx.EmptyString, wx.ITEM_NORMAL ))
-				if pth == Deca.world.ReportsPath:
-					cntxMenu.Enable(self.ID_RRemove, enable=False)
-				pt = event.GetPoint()
-				pt.x += event.EventObject.Position.x
-				pt.y += event.EventObject.Position.y
-				self.PopupMenu( cntxMenu, pos=pt )
-				pass
-			elif ttl[0:9] == 'ReportCod':
-				pth = ttl[10:]
-				cntxMenu = wx.Menu()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RGenerate, _("Generate"), wx.EmptyString, wx.ITEM_NORMAL ) )
-				cntxMenu.AppendSeparator()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RRemove, _("Remove"), wx.EmptyString, wx.ITEM_NORMAL ))
-				pt = event.GetPoint()
-				pt.x += event.EventObject.Position.x
-				pt.y += event.EventObject.Position.y
-				self.PopupMenu( cntxMenu, pos=pt )
-				pass
-			elif ttl == 'Repo':
-				pass # nothing to do for repository
-			elif ttl == 'layer':
-				cntxMenu = wx.Menu()
-				cntxMenu.AppendItem( wx.MenuItem( cntxMenu, self.ID_RemoveLayer, _("Remove"), wx.EmptyString, wx.ITEM_NORMAL ))
-				pt = event.GetPoint()
-				pt.x += event.EventObject.Position.x
-				pt.y += event.EventObject.Position.y
-				self.PopupMenu( cntxMenu, pos=pt )
-			else:
-				wx.MessageBox(event.EventObject.GetItemText(i), ttl, wx.OK)
-		pass
-
-	def OnRefreshWorld(self, event):
-		if event.GetId() == self.ID_RefreshLayers:
-			self.UpdateWorldTree(self.updateTree_Layers)
-		elif event.GetId() == self.ID_RefreshEngines:
-			self.UpdateWorldTree(self.updateTree_Engines)
-		elif event.GetId() == self.ID_RefreshReports:
-			self.UpdateWorldTree(self.updateTree_Reports)
-		else:
-			self.UpdateWorldTree(self.updateTree_All)
-
-	def OnExplDouble(self, event):
-		event.GetId()
-		itm = self.explorer.GetSelection()
-		msg = event.EventObject.GetItemText(itm)
-		ttl = str(event.EventObject.GetItemPyData(itm))
-		if itm.IsOk() :
-			if ttl == u'Repo':
-				for i in range(self.nbook.GetPageCount()) :
-					if self.nbook.GetPage(i).Tag == u"Repo":
-						self.nbook.SetSelection(i)
-						self.nbook.GetPage(i).UpdateView(None)
-						return
-				pg = ObjRepo.RepositoryPanel(self)
-				self.AddTab(pg, pg.Title, active=True)
-				sm = ed_style.StyleMgr(ed_style.StyleMgr.GetStyleSheet(self.style))
-				pg.UpdateColors(sm)
-			elif ttl == u'layer':
-				for i in range(self.nbook.GetPageCount()) :
-					if self.nbook.GetPage(i).Tag == 'Graph' and self.nbook.GetPageText(i) == msg:
-						self.nbook.SetSelection(i)
-						return
-				pg = ScGraph.GraphPanel(msg, self)
-				self.AddTab(pg, msg, active=True)
-				sm = ed_style.StyleMgr(ed_style.StyleMgr.GetStyleSheet(self.style))
-				pg.UpdateColors(sm)
-			elif ttl.startswith('EngineCod') :
-				self.CreateTextWindow(ttl[10:], activate=True)
-			elif ttl.startswith('ReportCod') :
-				self.CreateTextWindow(ttl[10:], ScEditor.EditorPanel.ED_TypeReport, activate=True)
-		# valid item wx.MessageBox(msg, ttl, wx.OK)
-
-	def OnExplChaged(self, event):
-		event.GetId()
-		itm = self.explorer.GetSelection()
-		msg = event.EventObject.GetItemText(itm)
-		ttl = str(event.EventObject.GetItemPyData(itm))
-		if ttl == 'World' :
-			self.propgrid.SetPropObject(Deca.world)
-		elif ttl == 'Repo':
-			obj = Deca.world.GetLayer(Deca.World.ID_Repository)
-			self.propgrid.SetPropObject(obj)
-		elif ttl == 'layer':
-			obj = Deca.world.GetLayer(msg)
-			self.propgrid.SetPropObject(obj)
 
 	def OnExit(self, event):
 		event.GetId()
@@ -847,7 +597,7 @@ class PyAUIFrame(wx.Frame):
 				Deca.world.GetLayer(dlg.GetValue())
 			else :
 				wx.MessageBox(_("Can't create layer with given name"), _('Sampo Framework'), wx.OK|wx.ICON_ERROR)
-			self.UpdateWorldTree(self.updateTree_Layers)
+			self.explorer.UpdateWorldTree(Explorer.expPanel.updateTree_Layers)
 		dlg.Destroy()
 		pass
 
@@ -878,7 +628,7 @@ class PyAUIFrame(wx.Frame):
 			pt = tb.ClientToScreen(rect.GetBottomLeft())
 			pt = self.ScreenToClient(pt)
 
-			self.PopupMenu(cntxMenu, pt)
+			self.PopupMenu(cntxMenu, pos=pt)
 			# make sure the button is "un-stuck"
 			tb.SetToolSticky(event.GetId(), False)
 		pass
@@ -944,96 +694,6 @@ class PyAUIFrame(wx.Frame):
 
 		return wx.Point(pt.x + x, pt.y + x)
 
-	def UpdateWorldTree(self, mode = updateTree_All):
-		if mode == self.updateTree_All:
-			self.explorer.DeleteAllItems()
-			root = self.explorer.AddRoot("World", image=0)
-			self.explorer.SetPyData(root, obj='World')
-			self._InitUserToolbar()
-		else:
-			root = self.explorer.GetRootItem()
-			if mode & self.updateTree_Layers:
-				it = self.explorer.GetFirstChild(root)[0]
-				while it.IsOk():
-					dl = it
-					it = self.explorer.GetNextSibling(dl)
-					if self.explorer.GetPyData(dl) == 'layer' :
-						self.explorer.Delete(dl)
-					# end if
-				# end while
-			if mode & self.updateTree_Engines:
-				it = self.explorer.GetFirstChild(root)[0]
-				while it.IsOk():
-					dl = it
-					it = self.explorer.GetNextSibling(dl)
-					if self.explorer.GetPyData(dl).startswith('Engine') :
-						self.explorer.Delete(dl)
-					# end if
-				# end while
-				self._InitUserToolbar()
-			if mode & self.updateTree_Reports:
-				it = self.explorer.GetFirstChild(root)[0]
-				while it.IsOk():
-					dl = it
-					it = self.explorer.GetNextSibling(dl)
-					if self.explorer.GetPyData(dl).startswith('Report') :
-						self.explorer.Delete(dl)
-					# end if
-				# end while
-
-		imglist = wx.ImageList(16, 16, True, 2)
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECA_WORLD), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECA_LAYER), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_DECA_OBJECT), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_FOLDER), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(synglob.ID_LANG_PYTHON), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(ed_glob.ID_BIN_FILE), wx.ART_MENU, wx.Size(16,16)))
-		imglist.Add(wx.ArtProvider.GetBitmap(str(synglob.ID_LANG_XML), wx.ART_MENU, wx.Size(16,16)))
-		self.explorer.AssignImageList(imglist)
-
-		if mode == self.updateTree_All:
-			rp = self.explorer.InsertItemBefore(root, index=0, text=_("Repository"), image=2)
-			self.explorer.SetPyData(rp, obj='Repo')
-		else :
-			rp = self.explorer.GetFirstChild(root)[0]
-		# repository added
-		if mode & self.updateTree_Layers :
-			for ln in Deca.world.GetLayerList():
-				if not ln.startswith('@') :
-					rp = self.explorer.InsertItem(root, idPrevious=rp, text=ln, image=1)
-					self.explorer.SetPyData(rp, obj='layer')
-			# end layers iteration
-		else :
-			it = self.explorer.GetNextSibling(rp)
-			while it.IsOk() and self.explorer.GetPyData(it) == 'layer':
-				rp = it
-				it = self.explorer.GetNextSibling(rp)
-		# layer added
-
-		if mode & self.updateTree_Engines :
-			pth = Deca.world.EnginesPath
-			rp = self.explorer.InsertItem(root, idPrevious=rp, text=_("Engines"), image=3)
-			self.explorer.SetPyData(rp, obj='EngineDir:%s' % pth)
-			try:
-				os.path.walk(pth, engine_visit, [self.explorer, {pth:rp}])
-			except Exception as cond:
-				self.log("[engines walking][err] %s" % cond)
-			self._CompleteUserToolbar()
-		else :
-			rp = self.explorer.GetNextSibling(rp)
-		# engines added
-		if mode & self.updateTree_Reports :
-			pth = Deca.world.ReportsPath
-			rp = self.explorer.InsertItem(root, idPrevious=rp, text=_("Reports"), image=3)
-			self.explorer.SetPyData(rp, obj='ReportDir:%s' % pth)
-			# todo: add Attachments and Results folders
-			try:
-				os.path.walk(pth, reports_visit, [self.explorer, {pth:rp}])
-			except Exception as cond:
-				self.log("[reports walking][err] %s" % cond)
-		# reports added
-		self.explorer.Expand(root)
-
 	def CreateTextWindow(self, fname, ftype=ScEditor.EditorPanel.ED_TypeScript, activate=False):
 		if not os.path.exists(fname):
 			fname = os.path.join(os.path.curdir, fname)
@@ -1044,10 +704,12 @@ class PyAUIFrame(wx.Frame):
 				return
 
 		pg = ScEditor.EditorPanel(ftype, self)
-		pg.tx.UpdateAllStyles(self.style)
 		pg.tx.LoadFile(fname)
+		pg.tx.SaveFile(fname)
 		ttl = pg.tx.GetTitleString()
 		self.AddTab(pg, ttl, active=activate)
+		sm = ed_style.StyleMgr(ed_style.StyleMgr.GetStyleSheet(self.style))
+		pg.UpdateColors(sm)
 
 	def UpdateColors(self, style):
 		#self.shell.SetShellTheme(style)
@@ -1061,144 +723,36 @@ class PyAUIFrame(wx.Frame):
 		self.logger.SetForegroundColour(sm.GetDefaultForeColour())
 		self.logger.Refresh()
 		# set explorer colors
-		self.explorer.SetBackgroundColour(sm.GetDefaultBackColour())
-		self.explorer.SetForegroundColour(sm.GetDefaultForeColour())
+		self.explorer.UpdateColors(sm)
 		#self.explorer.SetHilightFocusColour()
 		#self.explorer.SetHilightNonFocusColour()
 		self.explorer.Refresh()
 		# set properties colors
 		self.propgrid.UpdateColors(sm)
 
-	def OnEngineMenu(self, event):
-		base = ''
-		if event.GetId() != self.ID_ERefresh:
-			base = self.explorer.GetPyData(self.explorer.GetSelection())
-			base = base[10:]
-		if event.GetId() == self.ID_AddEFolder :
-			dlg = wx.TextEntryDialog(self, _("Enter new folder's name"),_('New Folder'))
-			dlg.SetValue("Default")
-			if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
-				try:
-					os.makedirs(os.path.join(base, dlg.GetValue()))
-				except Exception as cond:
-					wx.MessageBox(_("Can't create folder: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
-			dlg.Destroy()
-		elif event.GetId() == self.ID_AddEPackage :
-			dlg = wx.TextEntryDialog(self, _("Enter new package's name"),_('New Package'))
-			dlg.SetValue("Default")
-			if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
-				try:
-					base = os.path.join(base, dlg.GetValue())
-					os.makedirs(base)
-					open(os.path.join(base, '__init__.py'), 'a').close()
-				except Exception as cond:
-					wx.MessageBox(_("Can't create folder: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
-			dlg.Destroy()
-		elif event.GetId() == self.ID_AddECode :
-			dlg = wx.TextEntryDialog(self, _("Enter new engine's name"),_('New Engine'))
-			dlg.SetValue("Default")
-			if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
-				try:
-					base = os.path.join(base, dlg.GetValue() + '.py')
-					open(base, 'a').close()
-					self.CreateTextWindow(base, activate=True)
-				except Exception as cond:
-					wx.MessageBox(_("Can't create file: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
-			dlg.Destroy()
-		elif event.GetId() == self.ID_ERemove :
-			if os.path.isdir(base) :
-				shutil.rmtree(base, True)
-			else :
-				os.remove(base)
-		elif event.GetId() == self.ID_ImportECode :
-			pkn = base.replace(Deca.world.EnginesPath, '').replace(os.sep, '.')
-			if pkn.startswith('.'):
-				pkn = pkn[1:]
-			if pkn.endswith('.py') :
-				pkn = pkn[0:-3]
-			app.log("[engines][dbg] Add code-package %s (%s)" % (pkn, base))
-			ImportPackage(pkn, base, imp.PY_SOURCE)
-			return # no need to rebuild tree
-		elif event.GetId() == self.ID_OpenECode :
-			self.CreateTextWindow(base, activate=True)
-			return # no need to rebuild tree
-		elif event.GetId() == self.ID_RunECode :
-			fname = base.replace(Deca.world.EnginesPath, '')
-			fl = None
-			try:
-				fl = open(base, 'r')
-				exec fl in globals()
-			except Exception as cond:
-				wx.MessageBox(_("Error execution %s!\n%s") % (fname, cond), _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
-				self.LogMessage("[exec][err] %s" % cond)
-			finally:
-				if fl : fl.close()
-			return # no need to rebuild tree
-		elif event.GetId() == self.ID_ReloadEPackage :
-			pkn = base.replace(Deca.world.EnginesPath, '').replace(os.sep, '.')
-			if pkn.startswith('.'):
-				pkn = pkn[1:]
-			app.log("[engines][dbg] Add package %s (%s)" % (pkn, base))
-			ImportPackage(pkn, base)
-			return # no need to rebuild tree
-		Deca.world.Modified = True
-		self.UpdateWorldTree(mode=self.updateTree_Engines)
+	def SetStatus(self, text):
+		"""SetStatus(self, text)
 
-	def OnReportMenu(self,event):
-		base = self.explorer.GetPyData(self.explorer.GetSelection())
-		base = base[10:]
-		if event.GetId() == self.ID_AddRFolder :
-			dlg = wx.TextEntryDialog(self, _("Enter new folder's name"),_('New Folder'))
-			dlg.SetValue("Default")
-			if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
-				try:
-					os.makedirs(os.path.join(base, dlg.GetValue()))
-				except Exception as cond:
-					wx.MessageBox(_("Can't create folder: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
-			dlg.Destroy()
-		elif event.GetId() == self.ID_AddRCode :
-			dlg = wx.TextEntryDialog(self, _("Enter new report's name"),_('New Report'))
-			dlg.SetValue("Default")
-			if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
-				try:
-					base = os.path.join(base, dlg.GetValue() + '.xml')
-					open(base, 'a').close()
-					self.CreateTextWindow(base, ScEditor.EditorPanel.ED_TypeReport, activate=True)
-				except Exception as cond:
-					wx.MessageBox(_("Can't create file: %s") % cond, _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
-			dlg.Destroy()
-		elif event.GetId() == self.ID_RRemove :
-			if os.path.isdir(base) :
-				shutil.rmtree(base, True)
-			else :
-				os.remove(base)
-		elif event.GetId() == self.ID_RGenerate :
-			gen = ReportGenerator(fileName=base)
-			gen.Generate(self)
-		Deca.world.Modified = True
-		self.UpdateWorldTree(mode=self.updateTree_Reports)
+		:param text: text to be shown in the status bar
+		"""
+		self.SetStatusText(text, number=1)
 
-	def OnLayerMenu(self, event):
-		base = self.explorer.GetItemText(self.explorer.GetSelection())
-		if event.GetId() == self.ID_RemoveLayer :
-			if  wx.MessageBox(_("""Are you sure to clear this layer?
-NOTE: this operation can't be undone!
-All data owned by this layer will be lost!"""), _("Sampo Framework"), wx.YES_NO | wx.ICON_WARNING) == wx.YES :
-				# close layer page if open
-				for i in range(self.nbook.GetPageCount()) :
-					if self.nbook.GetPage(i).Tag == 'Graph' and self.nbook.GetPageText(i) == base:
-						self.nbook.DeletePage(i)
-						break
-				# destroy layer
-				Deca.world.DeleteLayer(base)
-				# refresh view
-				self.UpdateWorldTree(self.updateTree_Layers)
-			# end if answer == YES
-		# end if event == ID_RemoveLayer
+	def SetStatusProgressRange(self, max_value):
+		"""SetStatusProgressRange(self, max_value)
+
+		:param max_value: the maximal limit of the progress range
+		"""
+		self._gauge.SetRange(max_value)
+
+	def SetStatusProgress(self, percent):
+		"""Set progress indicator in the status bar.
+		:param percent: integer value in range [0..100] to indicate progress"""
+		if type(percent) != int:
+			percent = 0
+		if percent < 0:
+			percent = 0
+		self._gauge.SetValue(percent)
 		pass
-
-	def SetStatus(self, text, number=0):
-		self.SetStatusText(text, number)
 
 	def OnHelpView(self, event):
 		event.GetId()
@@ -1227,7 +781,7 @@ All data owned by this layer will be lost!"""), _("Sampo Framework"), wx.YES_NO 
 			self._mgr.ClosePane(pinfo)
 			self._mgr.DetachPane(self.tb2)
 			self.tb2.Destroy()
-		self.tb2 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
+		self.tb2 = aui.AuiToolBar(self, -1)
 		self.tb2.SetToolBitmapSize(wx.Size(16,16))
 		self.tb2.AddSpacer(1)
 
@@ -1241,7 +795,7 @@ All data owned by this layer will be lost!"""), _("Sampo Framework"), wx.YES_NO 
 		self._mgr.AddPane(self.tb2, aui.AuiPaneInfo().
 						  Name("tb2").Caption("World Toolbar").
 						  ToolbarPane().Top().Row(0).Position(1).
-						  LeftDockable(True).RightDockable(True))
+						  LeftDockable(False).RightDockable(False))
 		self.tb2.Refresh()
 		self._mgr.Update()
 		wx.CallAfter(self._FixTbarsView)
@@ -1254,12 +808,12 @@ All data owned by this layer will be lost!"""), _("Sampo Framework"), wx.YES_NO 
 		@handler - event handler for the button
 		"""
 		if self.tb2.FindTool(tool_id) :
-			self.log('[AddUserTool][warn] Tool ID=%s already exists' % tool_id)
+			self.log.write('[AddUserTool][warn] Tool ID=%s already exists' % tool_id)
 			self.tb2.DeleteTool(tool_id)
 		self.tb2.AddTool(tool_id, '', img, img, wx.ITEM_NORMAL,
 						short, long, tool_id)
 		self.Bind(wx.EVT_MENU, handler, id=tool_id)
-		self.log('[AddUserTool][dbg] Tool ID=%s binded' % tool_id)
+		self.log.write('[AddUserTool][dbg] Tool ID=%s binded' % tool_id)
 
 ###########################################################################
 ## main Application class
@@ -1313,9 +867,9 @@ class RunApp(wx.App):
 		self._pluginmgr = plugin.PluginManager()
 
 		self.ReloadTranslation()
-		
+
 		ogl.OGLInitialize()
-		frame = PyAUIFrame(None, wx.ID_ANY, "Sampo Framework", size=(750, 570))
+		frame = PyAUIFrame(None, _("Sampo Framework"), size=(750, 570))
 		frame.Show(True)
 
 		self.SetTopWindow(frame)
@@ -1359,16 +913,23 @@ class RunApp(wx.App):
 			del self.locale
 			self.locale = None
 
-	def AddMessageCatalog(self, name, path):
-		"""Add a catalog lookup path to the app
-		@param name: name of catalog (i.e 'projects')
-		@param path: catalog lookup path
+	def RunEngine(self, fname):
+		"""RunEngine(self, fname)
 
+		Executes given engine from the world's storage.
+		:param fname: path to engine's file relative to the world's engine storage
 		"""
-		if self.locale is not None:
-			path = resource_filename(path, 'locale')
-			self.locale.AddCatalogLookupPathPrefix(path)
-			self.locale.AddCatalog(name)
+		base = os.path.join(Deca.world.EnginesPath, fname)
+		fl = None
+		try:
+			fl = open(base, 'r')
+			exec fl in globals()
+		except Exception as cond:
+			wx.MessageBox(_("Error execution %s!\n%s") % (fname, cond), _("Sampo Framework"), wx.OK | wx.ICON_ERROR)
+			self.log("[exec][err] %s" % cond)
+		finally:
+			if fl : fl.close()
+		return # no need to rebuild tree
 
 if __name__ == '__main__':
 	app = RunApp("Sampo")

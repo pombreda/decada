@@ -195,7 +195,7 @@ class ShapeEvtHandler(ogl.ShapeEvtHandler):
 		x, y = shape.GetX(), shape.GetY()
 		width, height = shape.GetBoundingBoxMax()
 		self.statbarFrame.SetStatus("Pos: (%d, %d)  Size: (%d, %d) %s" %
-										(x, y, width, height, txt), 1)
+										(x, y, width, height, txt))
 
 	def OnLeftClick(self, x, y, keys=0, attachment=0):
 		shape = self.GetShape()
@@ -329,6 +329,21 @@ class ShapeEvtHandler(ogl.ShapeEvtHandler):
 		if "wxMac" in wx.PlatformInfo:
 			shape.GetCanvas().Refresh(False)
 
+	def _buildMenu(self, base, items, item_id):
+		mnu = wx.Menu()
+		mnu.Tag = self
+		for fp in items:
+			if type(fp) == tuple :
+				smn, item_id = self._buildMenu(os.path.join(base, fp[0]), fp[1], item_id)
+				mnu.AppendSubMenu(smn, fp[0])
+			else:
+				item_tag = os.path.join(base, fp)
+				item =  wx.MenuItem( mnu, item_id, fp, wx.EmptyString, wx.ITEM_NORMAL )
+				self._scripts[item_id] = item_tag
+				mnu.AppendItem(item)
+				item_id += 1
+		return (mnu, item_id)
+
 	def OnRightClick(self, x, y, *dontcare):
 		self._scripts.clear()
 		shape = self.GetShape()
@@ -351,10 +366,14 @@ class ShapeEvtHandler(ogl.ShapeEvtHandler):
 				cntxMenu.AppendSeparator()
 				item_id = wx.ID_HIGHEST + 1
 				for fp in pl:
-					item =  wx.MenuItem( cntxMenu, item_id, fp, wx.EmptyString, wx.ITEM_NORMAL )
-					self._scripts[item_id] = fp
-					cntxMenu.AppendItem(item)
-					item_id += 1
+					if type(fp) == tuple :
+						smn, item_id = self._buildMenu(fp[0], fp[1], item_id)
+						cntxMenu.AppendSubMenu(smn, fp[0])
+					else:
+						item =  wx.MenuItem( cntxMenu, item_id, fp, wx.EmptyString, wx.ITEM_NORMAL )
+						self._scripts[item_id] = fp
+						cntxMenu.AppendItem(item)
+						item_id += 1
 				# foreach script
 			# if any scripts found
 		# if DecaObject
@@ -460,6 +479,8 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 			self.Freeze()
 			self.diagram.SetQuickEditMode(True)
 			obj_curr = 2
+			frame.SetStatus(_("Draw elements"))
+			frame.SetStatusProgressRange(obj_len)
 			for oid, shp in self.storage.graph_data.items():
 				if getattr(shp, 'Tag') == 'object':
 					s = self.AddObjectShape(self.storage.objects[oid], shp.xpos, shp.ypos, shp)
@@ -468,7 +489,7 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 					s.SetWidth(shp.width)
 					s.SetHeight(shp.height)
 					obj_curr += 1
-					frame.SetStatus(_("Draw element %d/%d") % (obj_curr, obj_len), 1)
+					frame.SetStatusProgress(obj_curr)
 					wx.Yield()
 			#add links
 			for oid, shp in self.storage.graph_data.items():
@@ -480,9 +501,10 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 						lnk.SetPen(CreatePen(getattr(shp, 'pen', ()), self.pen))
 						lnk.SetBrush(CreateBrush(getattr(shp, 'brush', ()), self.brush))
 						obj_curr += 1
-						frame.SetStatus(_("Draw element %d/%d") % (obj_curr, obj_len), 1)
+						frame.SetStatusProgress(obj_curr)
 						wx.Yield()
 			self.diagram.SetQuickEditMode(False)
+			frame.SetStatus(_("Ready"))
 			self.Thaw()
 		# objects redraw done
 		self.Bind(wx.EVT_MENU, self.OnScript)
@@ -657,6 +679,20 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 			return None
 		return self.shapes[shp_id]
 
+	def _buildMenu(self, base, items, item_id):
+		mnu = wx.Menu()
+		for fp in items:
+			if type(fp) == tuple :
+				smn, item_id = self._buildMenu(os.path.join(base, fp[0]), fp[1], item_id)
+				mnu.AppendSubMenu(smn, fp[0])
+			else:
+				item_tag = os.path.join(base, fp)
+				item =  wx.MenuItem( mnu, item_id, fp, wx.EmptyString, wx.ITEM_NORMAL )
+				self._scripts[item_id] = item_tag
+				mnu.AppendItem(item)
+				item_id += 1
+		return (mnu, item_id)
+
 	def OnRightClick(self, x, y, keys = 0):
 		# layer view context menu
 		self._scripts.clear()
@@ -675,11 +711,15 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 			cntxMenu.AppendSeparator()
 			item_id = wx.ID_HIGHEST + 1
 			for fp in pl:
-				item_tag = fp
-				item =  wx.MenuItem( cntxMenu, item_id, fp, wx.EmptyString, wx.ITEM_NORMAL )
-				self._scripts[item_id] = item_tag
-				cntxMenu.AppendItem(item)
-				item_id += 1
+				if type(fp) == tuple :
+					smn, item_id = self._buildMenu(fp[0], fp[1], item_id)
+					cntxMenu.AppendSubMenu(smn, fp[0])
+				else:
+					item_tag = fp
+					item =  wx.MenuItem( cntxMenu, item_id, fp, wx.EmptyString, wx.ITEM_NORMAL )
+					self._scripts[item_id] = item_tag
+					cntxMenu.AppendItem(item)
+					item_id += 1
 			# foreach script
 		# if any scripts found
 		pt = wx.Point(int(x), int(y))
@@ -912,6 +952,8 @@ class GraphPanel(NbookPanel):
 		obj_curr = 0
 		self.graph.Freeze()
 		self.graph.diagram.SetQuickEditMode(True)
+		frame.SetStatus(_("Draw objects"))
+		frame.SetStatusProgressRange(obj_len)
 		for o in objlist:
 			shp = prev_view.get(o.ID)
 			if shp:
@@ -920,7 +962,7 @@ class GraphPanel(NbookPanel):
 				self.graph.AddObjectShape(o)
 			oids.add(o.ID)
 			obj_curr += 1
-			frame.SetStatus(_("Draw object %d/%d") % (obj_curr, obj_len), 1)
+			frame.SetStatusProgress(obj_curr)
 			wx.Yield()
 		# draw links
 		lnklist = self.graph.GetLinks(lambda l: (l.StartObject in oids) or (l.FinishObject in oids))
@@ -928,10 +970,12 @@ class GraphPanel(NbookPanel):
 		lnklist = Deca.Utility.Filter(self.link_filter, lnklist)
 		obj_len = len(lnklist)
 		obj_curr = 0
+		frame.SetStatus(_("Draw links"))
+		frame.SetStatusProgressRange(obj_len)
 		for l in lnklist:
 			self.graph.AddLinkShape(l)
 			obj_curr += 1
-			frame.SetStatus(_("Draw links %d/%d") % (obj_curr, obj_len), 1)
+			frame.SetStatusProgress(obj_curr)
 			wx.Yield()
 		nxgraph = NxLayout.Deca2Nx(self.graph.storage.graph_data)
 		lt_mode = self.graph.GetViewOption('Layout', 0)
@@ -940,7 +984,7 @@ class GraphPanel(NbookPanel):
 		self.graph.diagram.SetQuickEditMode(False)
 		self.graph.Thaw()
 		self.graph.Update()
-		frame.SetStatus("", 1)
+		frame.SetStatus(_("Ready"))
 
 	def OnProperties(self, event):
 		wx.MessageBox(_("Not implemented yet!"), _("Sampo Framework"))

@@ -12,6 +12,7 @@
 #!/usr/bin/env python
 import os
 import wx
+import wx.lib.agw.aui as aui
 import Deca
 from Editra.src import ed_editv, ed_glob, ed_search
 import gettext
@@ -21,13 +22,6 @@ from NbookPanel import NbookPanel
 from Reporter import ReportGenerator
 
 _ = gettext.gettext
-
-_hgUsefull = False
-try:
-	from mercurial import ui, hg
-	_hgUsefull = True
-except ImportError:
-	_hgUsefull = False
 
 ###########################################################################
 ## Class EdtHolder
@@ -68,20 +62,20 @@ class EditorPanel(NbookPanel):
 
 		bSizer = wx.BoxSizer( wx.VERTICAL )
 
-		self.mtb = wx.ToolBar( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
-		self.mtb.AddTool(wx.ID_FORWARD, wx.ArtProvider_GetBitmap(str(ed_glob.ID_NEXT_MARK), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Run"), longHelpString= _("Execute engine as module"))
-		self.mtb.AddTool(wx.ID_SAVE, wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAVE), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Save"), longHelpString= _("Save engine text"))
-		self.mtb.AddTool(wx.ID_SAVEAS, wx.ArtProvider_GetBitmap(str(ed_glob.ID_NEW), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Save as..."), longHelpString= _("Save engine text as new engine"))
+		self.mtb = aui.AuiToolBar( self )
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_NEXT_MARK), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(wx.ID_FORWARD, '', tbmp, tbmp, wx.ITEM_NORMAL, _("Run"), _("Execute engine as module"), None)
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAVE), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(wx.ID_SAVE, '', tbmp, tbmp, wx.ITEM_NORMAL, _("Save"), _("Save engine text"), None)
+		#tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_NEW), wx.ART_MENU, wx.Size(16, 16))
+		#self.mtb.AddTool(wx.ID_SAVEAS, '', tbmp, tbmp, wx.ITEM_NORMAL, _("Save as..."), _("Save engine text as new engine"), None)
 		self.mtb.AddSeparator()
-		self.mtb.AddTool(wx.ID_UNDO, wx.ArtProvider_GetBitmap(str(ed_glob.ID_UNDO), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Undo"), longHelpString= _("Undo previous operation"))
-		self.mtb.AddTool(wx.ID_REDO, wx.ArtProvider_GetBitmap(str(ed_glob.ID_REDO), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("Redo"), longHelpString= _("Redo reverted operation"))
-		self.mtb.AddTool(wx.ID_PREVIEW, wx.ArtProvider_GetBitmap(str(ed_glob.ID_METHOD_TYPE), wx.ART_MENU, wx.Size(16, 16)),
-						shortHelpString= _("CodeBrowser"), longHelpString= _("Toggle CodeBrowser window"))
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_UNDO), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(wx.ID_UNDO, '', tbmp, tbmp, wx.ITEM_NORMAL, _("Undo"), _("Undo previous operation"), None)
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_REDO), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(wx.ID_REDO, '', tbmp, tbmp, wx.ITEM_NORMAL, _("Redo"), _("Redo reverted operation"), None)
+		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_METHOD_TYPE), wx.ART_MENU, wx.Size(16, 16))
+		self.mtb.AddTool(wx.ID_PREVIEW, '', tbmp, tbmp, wx.ITEM_NORMAL, _("CodeBrowser"), _("Toggle CodeBrowser window"), None)
 		#self.mtb.AddLabelTool( wx.ID_ANY, _("tool"), wx.NullBitmap, wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString )
 		self.mtb.Realize()
 
