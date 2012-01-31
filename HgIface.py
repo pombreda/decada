@@ -34,6 +34,7 @@ class HgInter:
 		:param uname:
 		:param passwd:
 		"""
+		global hgUsefull
 		self.User = uname
 		self.Password = passwd
 		self.AddRemove = True
@@ -48,17 +49,21 @@ class HgInter:
 			        '--config', 'auth.def.username=%s' % self.User,
 			        '--config', 'auth.def.password=%s' % self.Password]
 			try:
-				self._client = hglib.open(path, configs=conf)
-			except hglib.error.ServerError:
-				if src:
-					self._client = hglib.clone(src, path, configs=conf)
-					shutil.copytree(self._repoPath, self._repoPathRemote)
-					self._client.open()
-				else:
-					self._client = hglib.init(path, configs=conf)
-					shutil.copytree(self._repoPath, self._repoPathRemote)
-					shutil.copytree(self._repoPath, self._repoPathLocal)
-					self._client.open()
+				try:
+					self._client = hglib.open(path, configs=conf)
+				except hglib.error.ServerError:
+					if src:
+						self._client = hglib.clone(src, path, configs=conf)
+						shutil.copytree(self._repoPath, self._repoPathRemote)
+						self._client.open()
+					else:
+						self._client = hglib.init(path, configs=conf)
+						shutil.copytree(self._repoPath, self._repoPathRemote)
+						shutil.copytree(self._repoPath, self._repoPathLocal)
+						self._client.open()
+			except Exception:
+				# not found HG?
+				hgUsefull = False
 		# initialised
 
 	def IsOk(self):

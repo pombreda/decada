@@ -6,12 +6,13 @@
 from cx_Freeze import setup, Executable
 import sys
 import os
+import hglib
 
 desc_txt = "Sampo - the Data Manipulation Framework"
 vars_txt = "0.8.0"
 
 buildOptions = dict(
-        namespace_packages = ['zope', "zc.lockfile", "BTrees.fsBTree", 'pkg_resources'],
+        namespace_packages = ['zope', "zc.lockfile", "BTrees.fsBTree", 'pkg_resources', 'hglib'],
         optimize = 2,
         compressed = 1,
         includes = ["Editra.src.generator",
@@ -29,7 +30,6 @@ buildOptions = dict(
                     "htmlentitydefs",
                     "cgi",
                     "mercurial",
-                    "hglib",
                     "urllib",
                     "urllib2",
                     "hashlib",
