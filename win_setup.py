@@ -51,6 +51,8 @@ setup(
                                  "htmllib",
                                  "htmlentitydefs",
                                  "cgi",
+                                 "mercurial",
+                                 "hglib",
                                  "urllib",
                                  "urllib2",
                                  "hashlib",
