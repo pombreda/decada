@@ -223,8 +223,8 @@ class RepoView(NbookPanel):
 			# redraw repository
 			wx.CallAfter(self.FillRepoView)
 		# if location changed
-		self.mtb.EnableTool(self.ID_RepoMode, Deca.world.HgRepository.IsOk())
-		if self._wasChanged != Deca.world.HgRepository.IsWdChanged:
+		self.mtb.EnableTool(self.ID_RepoMode, Deca.world.HgRepository.IsOk)
+		if Deca.world.HgRepository.IsOk and self._wasChanged != Deca.world.HgRepository.IsWdChanged:
 			self._wasChanged = Deca.world.HgRepository.IsWdChanged
 			self.mtb.EnableTool(self.ID_Commit, self._wasChanged)
 		event.Skip()
@@ -389,7 +389,7 @@ class RepoView(NbookPanel):
 
 	#noinspection PyTypeChecker
 	def FillRepoView(self):
-		if Deca.world.HgRepository.IsOk():
+		if Deca.world.HgRepository.IsOk:
 			self.repoHistory.DeleteAllItems()
 			revlst = Deca.world.HgRepository.colored(include_wd = True)
 			dt = datetime.now()

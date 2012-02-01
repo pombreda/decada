@@ -66,8 +66,9 @@ class HgInter:
 				hgUsefull = False
 		# initialised
 
+	@property
 	def IsOk(self):
-		return hgUsefull and self._client is not None
+		return hgUsefull and self._client is not None and self._client.server is not None
 
 	def reopen(self):
 		if self._client:
@@ -80,13 +81,17 @@ class HgInter:
 			self._client.close()
 			self._client = hglib.open(root, configs=conf)
 
+	def close(self):
+		if self.IsOk:
+			self._client.close()
+
 	def status(self, rev=None):
 		if self._client:
 			return self._client.status(rev)
 		return None
 
 	def commit(self, message, files = None, closebranch=False):
-		if self.IsOk():
+		if self.IsOk:
 			autos = self.AddRemove
 			if files is not None:
 				autos = False
@@ -94,7 +99,7 @@ class HgInter:
 		pass
 
 	def push(self, remote, force=False, insecure=False):
-		if not self.IsOk():
+		if not self.IsOk:
 			return
 		try:
 			self.commit('Automatic commit before push')
@@ -104,7 +109,7 @@ class HgInter:
 		pass
 
 	def sync(self, remote=None, rev=None, insecure=False, do_pull=True):
-		if not self.IsOk():
+		if not self.IsOk:
 			return
 		if not remote and do_pull:
 			# find the default remote repo
@@ -116,7 +121,7 @@ class HgInter:
 
 	def log(self, revrange=None, include_wd=False):
 		result = []
-		if self.IsOk():
+		if self.IsOk:
 			result = self._client.log(revrange=revrange)
 			if include_wd:
 				pass
@@ -164,13 +169,13 @@ class HgInter:
 
 	def SwitchToLocal(self):
 		"""Switch to local repository if exists."""
-		if self.IsOk() and not self._local:
+		if self.IsOk and not self._local:
 			shutil.rmtree(self._repoPathRemote, ignore_errors=True)
 			shutil.copytree(self._repoPath, self._repoPathRemote)
 			if os.path.exists(self._repoPathLocal):
+				self._client.close()
 				shutil.rmtree(self._repoPath, ignore_errors=True)
 				shutil.copytree(self._repoPathLocal, self._repoPath)
-				self._client.close()
 				self._client.open()
 				self._local = True
 			# if local copy exists
@@ -178,13 +183,13 @@ class HgInter:
 		pass
 
 	def SwitchToRemote(self):
-		if self.IsOk() and self._local:
+		if self.IsOk and self._local:
 			shutil.rmtree(self._repoPathLocal, ignore_errors=True)
 			shutil.copytree(self._repoPath, self._repoPathLocal)
 			if os.path.exists(self._repoPathRemote):
+				self._client.close()
 				shutil.rmtree(self._repoPath, ignore_errors=True)
 				shutil.copytree(self._repoPathRemote, self._repoPath)
-				self._client.close()
 				self._client.open()
 				self._local = False
 			# if remote copy exists

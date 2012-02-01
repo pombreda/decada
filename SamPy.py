@@ -377,7 +377,8 @@ class PyAUIFrame(wx.Frame):
 				try:
 					HgCommon.HgSync(Deca.world.HgRepository, None)
 					Deca.world.HgRepository.SwitchToLocal()
-					Deca.world.HgRepository.commit('Automatic sync to server on startup')
+					if Deca.world.HgRepository.IsWdChanged:
+						Deca.world.HgRepository.commit('Automatic sync to server on startup')
 				except Exception as cond:
 					self.LogMessage("[Source control][err] Synchronize failed: %s" % cond)
 				finally:
@@ -572,6 +573,7 @@ class PyAUIFrame(wx.Frame):
 
 	def OnClose(self, event):
 		profiler.TheProfile.Write(Profile_Get('MYPROFILE'))
+		Deca.world.HgRepository.close()
 		event.GetId()
 		self._mgr.UnInit()
 		del self._mgr

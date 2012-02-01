@@ -316,7 +316,7 @@ class expPanel ( wx.Panel ):
 		tpos = 0
 		tool = self.tb1.FindToolByIndex(tpos)
 		while tool:
-			self.tb1.EnableTool(tool.GetId(), Deca.world.HgRepository.IsOk())
+			self.tb1.EnableTool(tool.GetId(), Deca.world.HgRepository.IsOk)
 			tpos += 1
 			tool = self.tb1.FindToolByIndex(tpos)
 		# foreach tool

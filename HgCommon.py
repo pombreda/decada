@@ -122,6 +122,7 @@ def HgSync(repo, frame, rev=None, insecure=True, do_pull=True):
 		if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
 			remote_repo = dlg.GetValue()
 			Profile_Set('HG_REPOSITORY', remote_repo)
+		dlg.Destroy()
 	if remote_repo is not None:
 		repo.sync(remote_repo, rev=rev, insecure=insecure, do_pull=do_pull)
 	if status:

@@ -183,6 +183,7 @@ class DecaWorld:
 		if not self.Initial :
 			self.Save()
 		self.odb.close()
+		self.HgRepository.close()
 		shutil.rmtree(self.wfs, True)
 
 	def Save(self, fname = None):
