@@ -6,4 +6,6 @@ dist
 *.pyc
 *.pyo
 *.sublime-*
-
+Sampo.lnk
+Sampo2.psproj
+sampo.txt

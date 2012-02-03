@@ -1,4 +1,4 @@
-set PYTHON="c:\Python27\python.exe"
+set PYTHON="c:\Tools\Python27\python.exe"
 set SVN="c:\Program Files\TortoiseSVN\bin\TortoiseProc.exe"
 set SVN_MODE="Tortoise"
 
