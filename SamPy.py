@@ -76,6 +76,7 @@ class PyAUIFrame(wx.Frame):
 
 	ID_CreateWorld = wx.NewId()
 	ID_SaveWorld = wx.NewId()
+	ID_SaveWorldAs = wx.NewId()
 	ID_OpenWorld = wx.NewId()
 	ID_OpenWorldFile = wx.NewId()
 	ID_OpenWorldReduced = wx.NewId()
@@ -130,6 +131,10 @@ class PyAUIFrame(wx.Frame):
 		mi.SetBitmap(tbmp)
 		self._open_menu.AppendItem( wx.MenuItem( self._open_menu, self.ID_OpenWorldMerge, _("Merge with another world")) )
 		self._open_menu.AppendItem( wx.MenuItem( self._open_menu, self.ID_OpenWorldReduced, _("Open world without restoring views")) )
+
+		self._save_menu = wx.Menu()
+		self._save_menu.AppendItem( wx.MenuItem( self._save_menu, self.ID_SaveWorld, _("&Save world")) )
+		self._save_menu.AppendItem( wx.MenuItem( self._save_menu, self.ID_SaveWorldAs, _("Save world &as...")) )
 		# min size for the frame itself isn't completely done.
 		# see the end up FrameManager::Update() for the test
 		# code. For now, just hard code a frame minimum size
@@ -148,6 +153,7 @@ class PyAUIFrame(wx.Frame):
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_SAVE), wx.ART_MENU, wx.Size(16, 16))
 		tb1.AddTool(self.ID_SaveWorld, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Save world"), _("Save world to storage"), None)
+		tb1.SetToolDropDown(self.ID_SaveWorld, True)
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_PREF), wx.ART_MENU, wx.Size(16, 16))
 		tb1.AddTool(self.ID_Settings, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Options"), _("Tune the framework"), None)
@@ -248,7 +254,9 @@ class PyAUIFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.DoOpenWorld, id=self.ID_OpenWorldReduced)
 		self.Bind(wx.EVT_MENU, self.DoOpenWorld, id=self.ID_OpenWorldMerge)
 		self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.OnOpenWorld, id=self.ID_OpenWorld)
-		self.Bind(wx.EVT_MENU, self.OnSaveWorld, id=self.ID_SaveWorld)
+		self.Bind(wx.EVT_MENU, self.DoSaveWorld, id=self.ID_SaveWorld)
+		self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.OnSaveWorld, id=self.ID_SaveWorld)
+		self.Bind(wx.EVT_MENU, self.DoSaveWorld, id=self.ID_SaveWorldAs)
 
 		self.Bind(wx.EVT_MENU, self.OnSettings, id=self.ID_Settings)
 		self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
@@ -444,6 +452,7 @@ class PyAUIFrame(wx.Frame):
 				Deca.world.HgRepository.AddRemove = Profile_Get('HG_AUTOFILES', '')
 				self.SetTitle(_('[%s] - Sampo Framework') % os.path.basename(Deca.world.Filename))
 			# if file selected
+			dlg.Destroy()
 		elif evt_id == self.ID_OpenWorldMerge:
 			wx.MessageBox(_("Not implemented yet!"), _("Sampo Framework"))
 		else:
@@ -466,8 +475,35 @@ class PyAUIFrame(wx.Frame):
 			self.DoOpenWorld(event)
 
 	def OnSaveWorld(self, event):
-		event.GetId()
-		fname = None
+		if event.IsDropDownClicked():
+			tb = event.GetEventObject()
+			tb.SetToolSticky(event.GetId(), True)
+			# line up our menu with the button
+			rect = tb.GetToolRect(event.GetId())
+			pt = tb.ClientToScreen(rect.GetBottomLeft())
+			pt = self.ScreenToClient(pt)
+
+			self.PopupMenu(self._save_menu, pos=pt)
+			# make sure the button is "un-stuck"
+			tb.SetToolSticky(event.GetId(), False)
+		else:
+			#event.SetId(self.ID_OpenWorldFile)
+			self.DoSaveWorld(event)
+
+	def DoSaveWorld(self, event):
+		if event.GetId() == self.ID_SaveWorldAs:
+			dlg = wx.FileDialog(self, wildcard="DECA files|*.deca|All files|*.*",
+				style=wx.FD_SAVE)
+			if dlg.ShowModal() == wx.ID_OK :
+				fname = dlg.Path
+				if os.path.splitext(fname)[1].lower() != '.deca' :
+					fname += '.deca'
+				dlg.Destroy()
+			else :
+				dlg.Destroy()
+				return
+		else:
+			fname = None
 		if Deca.world.Initial:
 			# request filename
 			dlg = wx.FileDialog(self, wildcard="DECA files|*.deca|All files|*.*",
@@ -476,7 +512,9 @@ class PyAUIFrame(wx.Frame):
 				fname = dlg.Path
 				if os.path.splitext(fname)[1].lower() != '.deca' :
 					fname += '.deca'
+				dlg.Destroy()
 			else :
+				dlg.Destroy()
 				return
 		profiler.TheProfile.Write(Profile_Get('MYPROFILE'))
 		# save window position
@@ -565,7 +603,7 @@ class PyAUIFrame(wx.Frame):
 		if chld.Tag == "Text":
 			chld.DispatchToControl(evt)
 		if evt.GetId() == wx.ID_SAVE:
-			self.OnSaveWorld(evt)
+			self.DoSaveWorld(evt)
 		if evt.GetId() == wx.ID_OPEN:
 			evt.SetId(self.ID_OpenWorldFile)
 			self.DoOpenWorld(evt)			
