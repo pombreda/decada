@@ -16,6 +16,7 @@ from NbookPanel import *
 from ObjectUI import UserPassDlg
 from Editra.src.profiler import Profile_Set
 import HgCommon
+from RepoOpts import RepoOpts
 import gettext
 _ = gettext.gettext
 
@@ -178,6 +179,7 @@ class RepoView(NbookPanel):
 		self.Bind( wx.EVT_MENU, self.OnPull, id=self.ID_Pull )
 		self.Bind( wx.EVT_MENU, self.OnChangeLocation, id=self.ID_RepoMode )
 		self.Bind( wx.EVT_MENU, self.OnRefresh, id=self.ID_Refresh )
+		self.Bind( wx.EVT_MENU, self.OnOptions, id=self.ID_Options )
 
 		self._wasChanged = not Deca.world.HgRepository.IsWdChanged
 		wx.CallAfter(self.FillRepoView)
@@ -430,3 +432,9 @@ class RepoView(NbookPanel):
 	def OnRefresh(self, event):
 		event.GetId()
 		self.FillRepoView()
+
+	def OnOptions(self, event):
+		event.GetId()
+		dlg = RepoOpts(self)
+		dlg.ShowModal()
+		dlg.Destroy()
