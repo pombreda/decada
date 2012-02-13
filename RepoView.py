@@ -378,10 +378,7 @@ class RepoView(NbookPanel):
             dc.SetFont(f)
             for l in lines[3:]:
                 if len(l) > 1:
-                    ll = l[0]
-                    l = l.strip()
-                    if ll.isspace():
-                        l = ll + l
+                    l = l.rstrip()
                 itm = self.txtDiff.Append([l])
                 ext = dc.GetTextExtent(l)
                 if ext[0] > self.txtwid:

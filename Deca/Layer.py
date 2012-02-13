@@ -27,6 +27,7 @@ __author__ = 'Stinger'
 
 class DecaLayerStorage(Persistent):
 	def __init__(self):
+		Persistent.__init__(self)
 		self.objects = PersistentMapping()
 		self.links = PersistentMapping()
 		self.graph_data = PersistentMapping()
@@ -34,6 +35,7 @@ class DecaLayerStorage(Persistent):
 
 class DecaRepoStorage(Persistent):
 	def __init__(self):
+		Persistent.__init__(self)
 		self.objects = PersistentMapping()
 		self.templates = PersistentMapping()
 		self.shapes = PersistentMapping()
@@ -302,12 +304,25 @@ class DecaLayer:
 		return line
 
 	def GetEngines(self):
-		epath = os.path.join(Deca.world.EnginesPath, 'layer')
+		def genList(base, dirlist):
+			res = []
+			for ent in dirlist:
+				if os.path.isdir(os.path.join(base, ent)):
+					# process subdir
+					nb = os.path.join(base, ent)
+					res.append( (ent, genList(nb, os.listdir(nb))) )
+				else:
+					ft = os.path.splitext(ent)
+					if ft[1].lower() == '.py' and not ft[0].startswith('_'):
+						res.append(ft[0])
+			return res
+		# main function
 		pl = []
+		epath = os.path.join(Deca.world.EnginesPath, 'layer')
 		if os.path.isdir(epath):
-			pl = [os.path.splitext(f)[0] for f in os.listdir(epath) if os.path.splitext(f)[1].lower() == '.py']
-		# if Layer's engines
+			pl = genList(epath, os.listdir(epath))
 		return pl
+
 
 	def ExecuteEngine(self, name, dict = None):
 		item = os.path.join(Deca.world.EnginesPath, 'layer', name + '.py')

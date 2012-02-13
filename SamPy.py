@@ -778,7 +778,7 @@ class PyAUIFrame(wx.Frame):
 
 		:param text: text to be shown in the status bar
 		"""
-		self.SetStatusText(text, number=1)
+		self.SetStatusText(text, number=0)
 
 	def SetStatusProgressRange(self, max_value):
 		"""SetStatusProgressRange(self, max_value)
@@ -962,7 +962,10 @@ class RunApp(wx.App):
 		Executes given engine from the world's storage.
 		:param fname: path to engine's file relative to the world's engine storage
 		"""
+		ft = os.path.splitext(fname)
 		base = os.path.join(Deca.world.EnginesPath, fname)
+		if ft[1].lower() != '.py':
+			base += '.py'
 		fl = None
 		try:
 			fl = open(base, 'r')

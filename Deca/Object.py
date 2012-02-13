@@ -27,6 +27,7 @@ BOTH = 2
 
 class DecaTemplate(Persistent):
 	def __init__(self, id = None):
+		Persistent.__init__(self)
 		if id is not None:
 			self.ID = id
 		else:
@@ -46,6 +47,7 @@ class DecaTemplate(Persistent):
 
 class DecaShape(Persistent):
 	def __init__(self, name):
+		Persistent.__init__(self)
 		self.ID = name
 
 	def copy(self, name):
@@ -61,6 +63,7 @@ class DecaShape(Persistent):
 class DecaObject(Persistent):
 	"""A generic DECA object"""
 	def __init__(self, id = None):
+		Persistent.__init__(self)
 		if id is not None:
 			self.ID = id
 		else:
@@ -152,7 +155,7 @@ class DecaObject(Persistent):
 					res.append( (ent, genList(nb, os.listdir(nb))) )
 				else:
 					ft = os.path.splitext(ent)
-					if ft[1].lower() == '.py':
+					if ft[1].lower() == '.py' and not ft[0].startswith('_'):
 						res.append(ft[0])
 			return res
 		# main function
@@ -178,3 +181,9 @@ class DecaObject(Persistent):
 			exec fl in dict
 		finally:
 			if fl : fl.close()
+
+	@property
+	def Modified(self):	return self._p_changed
+
+	@Modified.setter
+	def Modified(self, value):	self._p_invalidate()
