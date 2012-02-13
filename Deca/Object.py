@@ -181,9 +181,3 @@ class DecaObject(Persistent):
 			exec fl in dict
 		finally:
 			if fl : fl.close()
-
-	@property
-	def Modified(self):	return self._p_changed
-
-	@Modified.setter
-	def Modified(self, value):	self._p_invalidate()
