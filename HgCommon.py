@@ -49,6 +49,7 @@ def HgPush(repo, frame, force=False, insecure=True):
 			Profile_Set('HG_USER', repo.User)
 			Profile_Set('HG_PASSWD', repo.Password)
 			repo.reopen()
+		dlg.Destroy()
 	if repo.IsWdChanged:
 		dlg = wx.TextEntryDialog(frame, _("Describe revision:"), _('Commit'))
 		dlg.SetValue("Auto-commit")
