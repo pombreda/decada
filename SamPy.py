@@ -769,6 +769,9 @@ class PyAUIFrame(wx.Frame):
 		self.explorer.Refresh()
 		# set properties colors
 		self.propgrid.UpdateColors(sm)
+		pane = self._mgr.GetPane("hgconsole")
+		if pane.IsOk():
+			pane.window.UpdateColors(sm)
 
 	def SetStatus(self, text):
 		"""SetStatus(self, text)

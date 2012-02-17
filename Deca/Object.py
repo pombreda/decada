@@ -173,9 +173,8 @@ class DecaObject(Persistent):
 		try:
 			fl = open(item, 'r')
 			dict['ActiveDecaLayer'] = layer
-			if not shape:
-				shape = layer.GetShape(self.ID)
 			dict['ActiveShape'] = shape
+			dict['ActiveObject'] = self.ID
 			exec fl in dict
 		finally:
 			if fl : fl.close()
