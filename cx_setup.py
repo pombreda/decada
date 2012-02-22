@@ -27,6 +27,7 @@ buildOptions = dict(
                     "Editra.src.extern.pygments",
                     "socket",
                     "htmllib",
+                    "httplib2",
                     "htmlentitydefs",
                     "cgi",
                     "mercurial",
