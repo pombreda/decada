@@ -165,7 +165,7 @@ class PyAUIFrame(wx.Frame):
 		tb1.AddTool(self.ID_ImageLib, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Images"), _("Edit images library"), None)
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_DECA_ENGINE), wx.ART_MENU, wx.Size(16, 16))
-		tb1.AddTool(Explorer.expPanel.ID_ERefresh, '', tbmp, tbmp, wx.ITEM_NORMAL,
+		tb1.AddTool(Explorer.expPanel.ID_RefreshEngines, '', tbmp, tbmp, wx.ITEM_NORMAL,
 						_("Reload engines"), _("Rebuild engines tree and reinitialize packages"), None)
 		tb1.AddSeparator()
 		tbmp = wx.ArtProvider_GetBitmap(str(ed_glob.ID_COMPUTER), wx.ART_MENU, wx.Size(16, 16))
@@ -264,6 +264,7 @@ class PyAUIFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnHelpView, id=self.ID_HelpView) 
 		self.Bind(wx.EVT_MENU, self.OnImageLib, id=self.ID_ImageLib) 
 		self.Bind(wx.EVT_MENU, self.OnNewLayer, id=Explorer.expPanel.ID_AddLayer)
+		self.Bind(wx.EVT_MENU, self.OnRefreshWorld, id=Explorer.expPanel.ID_RefreshEngines)
 
 		#self.Bind(wx.EVT_MENU, self.OnContextMenu, id=self.ID_ViewMenu)
 		self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.OnPaneViewMenu, id=self.ID_ViewMenu)
@@ -640,6 +641,9 @@ class PyAUIFrame(wx.Frame):
 			self.explorer.UpdateWorldTree(Explorer.expPanel.updateTree_Layers)
 		dlg.Destroy()
 		pass
+
+	def OnRefreshWorld(self, event):
+		self.explorer.OnRefreshWorld(event)
 
 	def OnPaneViewMenu(self, event):
 		if event.IsDropDownClicked():
