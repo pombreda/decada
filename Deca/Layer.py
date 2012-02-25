@@ -261,6 +261,7 @@ class DecaLayer:
 			shape.Tag = 'object'
 			shape.xpos = xpos
 			shape.ypos = ypos
+			shape.label = obj.GetTitle()
 			if not shapeTmpl:
 				shape.width = self.GetViewOption('defaultShapeWidth', 100)
 				shape.height = self.GetViewOption('defaultShapeHeight', 50)
@@ -290,6 +291,7 @@ class DecaLayer:
 			line.start = lnk.StartObject
 			line.finish = lnk.FinishObject
 			line.direct = lnk.Directional
+			line.label = getattr(lnk, 'Title', '')
 			if not shapeTmpl:
 				line.pen = ()
 				line.brush = ()

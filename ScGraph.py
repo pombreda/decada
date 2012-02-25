@@ -16,6 +16,7 @@ import wx
 import wx.lib.agw.aui as aui
 import Deca
 import NxLayout
+import DotLayout
 from Deca.Utility import CompileCode, ImportPackage, GetModule
 from Deca.Object import DecaTemplate, DecaShape
 from wx.lib import ogl
@@ -25,6 +26,7 @@ from NbookPanel import NbookPanel
 from ObjectUI import ObjDialog, CreateBrush, ReflectObjDlg, CreatePen #, SaveBrush, SavePen
 from EditLinks import EdtLinks, LinksDlg
 from Editra.src import ed_glob
+import pydot
 import gettext
 _ = gettext.gettext
 
@@ -836,11 +838,14 @@ class GraphPanel(NbookPanel):
 		self.SetSizer( bSizer )
 		self.Layout()
 
+		self.grapvizMap = {}
+
 		self.Bind(wx.EVT_MENU, self.OnProperties, id=wx.ID_PREFERENCES)
 		self.Bind(wx.EVT_MENU, self.UpdateView, id=wx.ID_REFRESH)
 		self.Bind(wx.EVT_MENU, self.UpdateView, id=wx.ID_SETUP)
 		self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.OnSelectLayout, id=wx.ID_SETUP)
 		self.Bind(wx.EVT_MENU, self.OnLayout, id=wx.ID_FILE2, id2=wx.ID_FILE7)
+		self.Bind(wx.EVT_MENU, self.OnLayout, id=wx.ID_HIGHEST, id2=wx.ID_HIGHEST+10)
 		self.Bind(wx.EVT_MENU, self.OnFilter, id=wx.ID_FILE1)
 		self.Bind(wx.EVT_MENU, self.OnNewObject, id=wx.ID_ADD)
 		self.Bind(wx.EVT_MENU, self.OnNewLink, id=wx.ID_INDENT)
@@ -885,7 +890,11 @@ class GraphPanel(NbookPanel):
 			self.graph.SetViewOption('Layout', 4)
 		elif evt_id == wx.ID_FILE7:
 			self.graph.SetViewOption('Layout', 5)
+		elif evt_id > wx.ID_HIGHEST:
+			mode = self.grapvizMap.get(evt_id, 0)
+			self.graph.SetViewOption('Layout', mode)
 		new_layout = self.graph.GetViewOption('Layout', 0)
+		self.log('[GraphPanel][dbg] Layout event: %s (%s ?? %s)' % (evt_id, old_layout, new_layout))
 		if old_layout != new_layout:
 			self.UpdateView(event)
 		# that's all
@@ -902,6 +911,13 @@ class GraphPanel(NbookPanel):
 			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE5, _("S&pring layout")) )
 			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE6, _("Sp&ectral layout")) )
 			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE7, _("&Align to grid")) )
+			# check for the graphviz layouts
+			gvl = pydot.find_graphviz()
+			menuid = wx.ID_HIGHEST + 1
+			for lt in gvl:
+				it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, menuid, _("Graphviz - %s" % lt)) )
+				self.grapvizMap[menuid] = lt
+				menuid += 1
 			# line up our menu with the button
 			rect = tb.GetToolRect(event.GetId())
 			pt = tb.ClientToScreen(rect.GetBottomLeft())
@@ -951,7 +967,7 @@ class GraphPanel(NbookPanel):
 		frame = wx.GetApp().TopWindow
 		obj_curr = 0
 		self.graph.Freeze()
-		self.graph.diagram.SetQuickEditMode(True)
+		#self.graph.diagram.SetQuickEditMode(True)
 		frame.SetStatus(_("Draw objects"))
 		frame.SetStatusProgressRange(obj_len)
 		for o in objlist:
@@ -977,11 +993,15 @@ class GraphPanel(NbookPanel):
 			obj_curr += 1
 			frame.SetStatusProgress(obj_curr)
 			wx.Yield()
-		nxgraph = NxLayout.Deca2Nx(self.graph.storage.graph_data)
 		lt_mode = self.graph.GetViewOption('Layout', 0)
-		self.log("layout mode = %d" % lt_mode)
-		NxLayout.Nx2Layout(nxgraph, self.graph, lt_mode)
-		self.graph.diagram.SetQuickEditMode(False)
+		self.log("layout mode = %s" % lt_mode)
+		if type(lt_mode) == int:
+			nxgraph = NxLayout.Deca2Nx(self.graph.storage.graph_data)
+			NxLayout.Nx2Layout(nxgraph, self.graph, lt_mode)
+		elif isinstance(lt_mode, (str, unicode)):
+			dotgraph = DotLayout.Deca2Dot(self.graph.storage.graph_data, mode = lt_mode)
+			DotLayout.Dot2Layout(dotgraph, self.graph)
+		#self.graph.diagram.SetQuickEditMode(False)
 		self.graph.Thaw()
 		self.graph.Update()
 		frame.SetStatus(_("Ready"))
