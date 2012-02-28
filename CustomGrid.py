@@ -309,12 +309,12 @@ class CellEditor ( wx.Control ):
 class ToStringEditor(gridlib.PyGridCellEditor):
 	def __init__(self):
 		self.log = wx.GetApp().GetLog()
-		self.log.write("[ToStringEditor][dbg] ctor")
+		#self.log.write("[ToStringEditor][dbg] ctor")
 		self._control = None
 		gridlib.PyGridCellEditor.__init__(self)
 
 	def __del__(self):
-		self.log.write("[ToStringEditor][dbg] del")
+		#self.log.write("[ToStringEditor][dbg] del")
 		if self._control :
 			self.SetControl(None)
 
@@ -448,6 +448,11 @@ class CustomGrid (gridlib.Grid ):
 	def AppendRows(self, numRows=1, updateLabels=True):
 		self._raw_data.extend([[None]*self.colNums for i in range(numRows)])
 		return gridlib.Grid.AppendRows(self, numRows, updateLabels)
+
+	def DeleteRows(self, pos=0, numRows=1, updateLabels=True):
+		for ii in xrange(numRows):
+			del self._raw_data[pos]	
+		return gridlib.Grid.DeleteRows(self, pos, numRows, updateLabels)
 
 	def SetCellValue(self, row, col, s):
 		# save original value
