@@ -335,7 +335,7 @@ class ToStringEditor(gridlib.PyGridCellEditor):
 		self.log.write("[ToStringEditor][dbg] Create  from %s" % parent)
 		#self._control = wx.TextCtrl( parent, id, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.NO_BORDER )
 		self._control = CellEditor(parent, id)
-		slef._control.holder = self
+		self._control.holder = self
 		#self._control.SetInsertionPoint(0)
 		self.SetControl(self._control)
 		#if evtHandler:

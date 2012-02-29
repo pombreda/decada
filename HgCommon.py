@@ -112,6 +112,7 @@ def HgSync(repo, frame, rev=None, insecure=True, do_pull=True):
 			Profile_Set('HG_USER', repo.User)
 			Profile_Set('HG_PASSWD', repo.Password)
 			repo.reopen()
+		dlg.Destroy()
 	# and now - time to pull
 	remote_repo = Profile_Get('HG_REPOSITORY')
 	if remote_repo is None:
