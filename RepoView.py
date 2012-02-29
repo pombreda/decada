@@ -51,16 +51,16 @@ class RepoView(NbookPanel):
 
     colors = [
         [ # light background
-            wx.ColorRGB(0x80ff80), # patch line background
-            wx.ColorRGB(0x800080), # patch line text
-            wx.ColorRGB(0x008000), # added line text
-            wx.ColorRGB(0x000080)  # removed line text
+            wx.ColourRGB(0x80ff80), # patch line background
+            wx.ColourRGB(0x800080), # patch line text
+            wx.ColourRGB(0x008000), # added line text
+            wx.ColourRGB(0x000080)  # removed line text
         ],
         [  # dark background
-            wx.ColorRGB(0x40B040), # patch line background
-            wx.ColorRGB(0xD000D0), # patch line text
-            wx.ColorRGB(0x00D000), # added line text
-            wx.ColorRGB(0x0000D0)  # removed line text
+            wx.ColourRGB(0x40B040), # patch line background
+            wx.ColourRGB(0xD000D0), # patch line text
+            wx.ColourRGB(0x00D000), # added line text
+            wx.ColourRGB(0x0000D0)  # removed line text
         ]
     ]
 

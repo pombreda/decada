@@ -11,6 +11,7 @@
 #-------------------------------------------------------------------------------
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
+import string
 import wx
 import wx.grid as gridlib
 import gettext
@@ -244,9 +245,13 @@ class CellEditor ( wx.Control ):
 		self.btn = wx.Button( self, wx.ID_ANY, _("..."), wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
 		bSizer.Add( self.btn, proportion=0, flag=wx.ALL|wx.EXPAND, border=0 )
 
+		self.inChild = False
+		self.holder = None
+
 		self.SetSizer( bSizer )
 		self.Layout()
 		self.Bind(wx.EVT_BUTTON, self.OnButton, self.btn)
+		self.Bind(wx.EVT_KILL_FOCUS, self.OnFocus)
 
 	def __del__( self ):
 		self.log("[CellEditor][dbg] del")
@@ -255,8 +260,10 @@ class CellEditor ( wx.Control ):
 	def OnButton(self, event):
 		dlg = EditIterable(self.GetParent())
 		dlg.SetData(self.value)
+		self.inChild = True
 		if dlg.ShowModal() == wx.ID_OK:
 			self.SetValue(dlg.GetData())
+		self.inChild = False
 		event.Skip()
 
 	def SetSize( self, rect ):
@@ -303,6 +310,12 @@ class CellEditor ( wx.Control ):
 		self.txtView.SetInsertionPointEnd()
 		self.txtView.SetFocus()
 
+	def OnFocus(self, evt):
+		self.log("[CellEditor][dbg] OnFocus state = %s" % self.inChild)
+		if not self.inChild and self.holder is not None:
+			self.log("[CellEditor][dbg] OnFocus says to destroy")
+			self.holder.Show(0, None)
+
 ###########################################################################
 ## Class ToStringEditor
 ###########################################################################
@@ -319,9 +332,10 @@ class ToStringEditor(gridlib.PyGridCellEditor):
 			self.SetControl(None)
 
 	def Create(self, parent, id, evtHandler):
-		self.log.write("[ToStringEditor][dbg] Create")
+		self.log.write("[ToStringEditor][dbg] Create  from %s" % parent)
 		#self._control = wx.TextCtrl( parent, id, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.NO_BORDER )
 		self._control = CellEditor(parent, id)
+		slef._control.holder = self
 		#self._control.SetInsertionPoint(0)
 		self.SetControl(self._control)
 		#if evtHandler:
@@ -367,6 +381,50 @@ class ToStringEditor(gridlib.PyGridCellEditor):
 		self.log.write("[ToStringEditor][dbg] Reset")
 		self._control.SetValue(self.startValue)
 		self._control.Commit()
+
+	def IsAcceptedKey(self, evt):
+		"""
+		Return True to allow the given key to start editing: the base class
+		version only checks that the event has no modifiers.  F2 is special
+		and will always start the editor.
+		"""
+		self.log.write("[ToStringEditor][dbg] IsAcceptedKey: %d\n" % (evt.GetKeyCode()))
+
+		## We can ask the base class to do it
+		#return super(MyCellEditor, self).IsAcceptedKey(evt)
+
+		# or do it ourselves
+		return (not (evt.ControlDown() or evt.AltDown()) and
+					evt.GetKeyCode() != wx.WXK_SHIFT)
+
+	def StartingKey(self, evt):
+		"""
+		If the editor is enabled by pressing keys on the grid, this will be
+		called to let the editor do something about that first key if desired.
+		"""
+		self.log.write("[ToStringEditor][dbg] StartingKey %d\n" % evt.GetKeyCode())
+		key = evt.GetKeyCode()
+		ch = None
+		if key in [ wx.WXK_NUMPAD0, wx.WXK_NUMPAD1, wx.WXK_NUMPAD2, wx.WXK_NUMPAD3, 
+					wx.WXK_NUMPAD4, wx.WXK_NUMPAD5, wx.WXK_NUMPAD6, wx.WXK_NUMPAD7, 
+					wx.WXK_NUMPAD8, wx.WXK_NUMPAD9
+					]:
+
+			ch = chr(ord('0') + key - wx.WXK_NUMPAD0)
+
+		elif key < 256 and key >= 0 and chr(key) in string.printable:
+			ch = chr(key)
+		elif key == wx.WXK_RETURN:
+			evt.SetKeyCode(wx.WXK_F2)
+
+		if ch is not None:
+			# For this example, replace the text.  Normally we would append it.
+			#self._tc.AppendText(ch)
+			if self._control.txtView.Enabled:
+				self._control.SetValue(ch)
+				self._control.txtView.SetInsertionPointEnd()
+		else:
+			evt.Skip()
 
 	def StartingClick(self):
 		self.log.write("[ToStringEditor][dbg] StartingClick")
@@ -436,6 +494,7 @@ class CustomGrid (gridlib.Grid ):
 		gridlib.Grid.__init__(self, parent, id, pos, size, style)
 		self._raw_data = []
 		self.colNums = 0
+		self.activeEditor = None
 		self.Bind(gridlib.EVT_GRID_EDITOR_CREATED, self.OnCreateEditor)
 		self.Bind(gridlib.EVT_GRID_EDITOR_SHOWN, self.OnStartEdit)
 		self.Bind(gridlib.EVT_GRID_EDITOR_HIDDEN, self.OnStopEdit)
@@ -464,6 +523,11 @@ class CustomGrid (gridlib.Grid ):
 		self._raw_data[row][col] = s
 		gridlib.Grid.SetCellValue(self, row, col, str(s))
 
+	def OnKeyDown(self, evt):
+		if evt.GetKeyCode() != wx.WXK_RETURN:
+			evt.Skip()
+			return
+
 	def GetCellRawValue(self, row, col):
 		try:
 			return self._raw_data[row][col]
@@ -471,17 +535,19 @@ class CustomGrid (gridlib.Grid ):
 			return None
 
 	def OnStartEdit(self, evt):
-		wx.GetApp().log("[Custom grid] begin edit: %s" % evt.EventObject)
+		wx.GetApp().log("[Custom grid][dbg] begin edit: %s" % evt)
 		evt.Skip()
 
 	def OnStopEdit(self, evt):
-		wx.GetApp().log("[Custom grid] finish edit %s" % evt.EventObject)
+		wx.GetApp().log("[Custom grid][dbg] finish edit %s" % evt)
+		self.activeEditor = None
 		evt.Skip()
 
 	def OnCreateEditor(self, evt):
-		wx.GetApp().log("[Custom grid] create editor %s" % evt.EventObject)
+		wx.GetApp().log("[Custom grid][dbg] create editor %s" % evt)
+		self.activeEditor = evt.Control
 		evt.Skip()
 
 	def FixOnClose(self):
-		wx.GetApp().log("[Custom grid] fix-on-exit")
+		wx.GetApp().log("[Custom grid][dbg] fix-on-exit")
 		pass
