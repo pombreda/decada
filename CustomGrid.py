@@ -251,7 +251,7 @@ class CellEditor ( wx.Control ):
 		self.SetSizer( bSizer )
 		self.Layout()
 		self.Bind(wx.EVT_BUTTON, self.OnButton, self.btn)
-		self.Bind(wx.EVT_KILL_FOCUS, self.OnFocus)
+		self.txtView.Bind(wx.EVT_KILL_FOCUS, self.OnFocus)
 
 	def __del__( self ):
 		self.log("[CellEditor][dbg] del")
@@ -314,7 +314,9 @@ class CellEditor ( wx.Control ):
 		self.log("[CellEditor][dbg] OnFocus state = %s" % self.inChild)
 		if not self.inChild and self.holder is not None:
 			self.log("[CellEditor][dbg] OnFocus says to destroy")
-			self.holder.Show(0, None)
+			grid = self.Parent.Parent # must be a grid
+			if isinstance(grid, gridlib.Grid):
+				grid.DisableCellEditControl()
 
 ###########################################################################
 ## Class ToStringEditor
