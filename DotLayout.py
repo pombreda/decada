@@ -12,6 +12,7 @@ import Deca
 import uuid
 import pydot
 import subprocess
+import platform
 
 def Deca2Dot(decaGraph, force=True, mode='dot'):
     wx.GetApp().log('[PyDot][dbg] build %s graph' % mode)
@@ -42,14 +43,26 @@ def Deca2Dot(decaGraph, force=True, mode='dot'):
 def Dot2Layout(dotcode, layerView):
     G = None
     try:
-        p = subprocess.Popen(
-            ['dot', '-Txdot'],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=False,
-            universal_newlines=True
-        )
+        if platform.platform().lower().find('windows') != -1:
+            pdex = pydot.find_graphviz()
+            p = subprocess.Popen(
+                [pdex['dot'], '-Txdot'],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=False,
+                creationflags=0x08000000,
+                universal_newlines=True
+            )
+        else:
+            p = subprocess.Popen(
+                ['dot', '-Txdot'],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=False,
+                universal_newlines=True
+            )
         xdotcode, error = p.communicate(dotcode)
         if p.returncode == 0:
             G = pydot.graph_from_dot_data(xdotcode)
