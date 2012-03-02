@@ -49,7 +49,7 @@ def CreateObjectShape(width = 100, height = 50, baseObj=None, template=None):
 	return shape
 
 ###########################################################################
-## Class ShapeEvtHandler
+## Class LinkLine
 ###########################################################################
 class LinkLine(ogl.LineShape):
 	def __init__(self):
@@ -87,7 +87,7 @@ class LinkLine(ogl.LineShape):
 				dc.DrawText(txt.GetText(), xp - txent[0] / 2.0, yp - txent[1] / 2.0)
 
 ###########################################################################
-## Class ShapeEvtHandler
+## Class LineEvtHandler
 ###########################################################################
 class LineEvtHandler(ogl.ShapeEvtHandler):
 	def __init__(self, log, frame):
@@ -483,28 +483,29 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 			obj_curr = 2
 			frame.SetStatus(_("Draw elements"))
 			frame.SetStatusProgressRange(obj_len)
-			for oid, shp in self.storage.graph_data.items():
-				if getattr(shp, 'Tag') == 'object':
-					s = self.AddObjectShape(self.storage.objects[oid], shp.xpos, shp.ypos, shp)
-					s.SetPen(CreatePen(getattr(shp, 'pen', ()), self.pen))
-					s.SetBrush(CreateBrush(getattr(shp, 'brush', ()), self.brush))
-					s.SetWidth(shp.width)
-					s.SetHeight(shp.height)
-					obj_curr += 1
-					frame.SetStatusProgress(obj_curr)
-					wx.Yield()
-			#add links
-			for oid, shp in self.storage.graph_data.items():
-				if getattr(shp, 'Tag') == 'link':
-					lnk = self.GetLinks(lambda ln: ln.StartObject == shp.start and ln.FinishObject == shp.finish)
-					if len(lnk) > 0:
-						#lnk = lnk[0]
-						lnk = self.AddLinkShape(lnk[0], shp)
-						lnk.SetPen(CreatePen(getattr(shp, 'pen', ()), self.pen))
-						lnk.SetBrush(CreateBrush(getattr(shp, 'brush', ()), self.brush))
-						obj_curr += 1
-						frame.SetStatusProgress(obj_curr)
-						wx.Yield()
+			self.RebuildDrawing()
+			# for oid, shp in self.storage.graph_data.items():
+			# 	if getattr(shp, 'Tag') == 'object':
+			# 		s = self.AddObjectShape(self.storage.objects[oid], shp.xpos, shp.ypos, shp)
+			# 		s.SetPen(CreatePen(getattr(shp, 'pen', ()), self.pen))
+			# 		s.SetBrush(CreateBrush(getattr(shp, 'brush', ()), self.brush))
+			# 		s.SetWidth(shp.width)
+			# 		s.SetHeight(shp.height)
+			# 		obj_curr += 1
+			# 		frame.SetStatusProgress(obj_curr)
+			# 		wx.Yield()
+			# #add links
+			# for oid, shp in self.storage.graph_data.items():
+			# 	if getattr(shp, 'Tag') == 'link':
+			# 		lnk = self.GetLinks(lambda ln: ln.StartObject == shp.start and ln.FinishObject == shp.finish)
+			# 		if len(lnk) > 0:
+			# 			#lnk = lnk[0]
+			# 			lnk = self.AddLinkShape(lnk[0], shp)
+			# 			lnk.SetPen(CreatePen(getattr(shp, 'pen', ()), self.pen))
+			# 			lnk.SetBrush(CreateBrush(getattr(shp, 'brush', ()), self.brush))
+			# 			obj_curr += 1
+			# 			frame.SetStatusProgress(obj_curr)
+			# 			wx.Yield()
 			self.diagram.SetQuickEditMode(False)
 			frame.SetStatus(_("Ready"))
 			self.Thaw()
@@ -598,83 +599,108 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 		del self.shapes[lid]
 		return lid
 
-	def AddObjectShape(self, obj, xpos = None, ypos = None, shapeTmpl = None):
-		shape = None
-		if isinstance(obj, Deca.Object):
-			shp = Deca.Layer.AddObjectShape(self, obj, xpos, ypos, shapeTmpl)
-			if shapeTmpl:
-				shape = CreateObjectShape(width=shapeTmpl.width, height=shapeTmpl.height, baseObj=obj )
-			else :
-				shape = CreateObjectShape(width=shp.width, height=shp.height, baseObj=obj)
-			if obj.ID in self.shapes.keys():
-				# remove current shape
-				self.diagram.RemoveShape(self.shapes[obj.ID])
-			shape.SetCanvas(self)
-			shape.SetRegionName(obj.ID)
-			shape.SetPen(self.pen)
-			shape.SetBrush(self.brush)
-			shape.AddText(obj.GetTitle())
-			shape.SetTextColour('SampoShapeText')
-			# perform shape placement
-			shape.SetX(shp.xpos)
-			shape.SetY(shp.ypos)
-			# store shape
-			self.shapes[obj.ID] = shape
-			self.diagram.AddShape(shape)
-			self.diagram.RecentreAll(self.diagram.GetCanvas())
-			shape.Show(True)
-			evthandler = ShapeEvtHandler(self.log, self.frame)
-			evthandler.SetShape(shape)
-			evthandler.SetPreviousHandler(shape.GetEventHandler())
-			shape.SetEventHandler(evthandler)
-			# fix view size
-			limx = shape.GetX() + shape.GetWidth()
-			limy = shape.GetY() + shape.GetHeight()
-			limx = max(self.maxWidth, limx)
-			limy = max(self.maxHeight, limy)
-			self.SetViewSize(limx, limy)
-			self.Modified = True
-		return shape
-
-	def AddLinkShape(self, lnk, shapeTmpl = None):
-		line = None
-		fromShape = self.shapes.get(lnk.StartObject)
-		toShape = self.shapes.get(lnk.FinishObject)
-		if fromShape and toShape:
-			shp = Deca.Layer.AddLinkShape(self, lnk, shapeTmpl)
-			line = LinkLine()
-			line.SetCanvas(self)
-			line.SetRegionName(lnk.ID)
-			line.SetPen(self.pen)
-			if lnk.Directional:
-				line.AddArrow(ogl.ARROW_ARROW)
-			elif self.GetViewOption('bidirectional', False):
-				line.AddArrow(ogl.ARROW_ARROW)
-				line.AddArrow(ogl.ARROW_ARROW, ogl.ARROW_POSITION_START)
-			ttl = getattr(lnk, 'Title', '').strip()
-			if ttl != '':
-				line.AddText(ttl)
-				line.SetBrush(wx.TRANSPARENT_BRUSH)
+	def RebuildDrawing(self):
+		# first stage: move or add objects shapes
+		dc = wx.ClientDC(self)
+		self.PrepareDC(dc)
+		objlen = len(self.storage.graph_data)
+		self.frame.SetStatus(_("Collect objects"))
+		self.frame.SetStatusProgressRange(objlen)
+		ii = 0
+		for shp, sid in [(o,i) for i,o in self.storage.graph_data.items() if getattr(o, 'Tag', '') == 'object']:
+			shape = self.GetShape(sid)
+			if shape is not None:
+				x = shape.GetX()
+				y = shape.GetY()
+				w = shape.GetWidth()
+				h = shape.GetHeight()
+				if x != shp.xpos or y != shp.ypos:
+					shp.Move(dc, shp.xpos, shp.ypos)
+				if w != shp.width:
+					shape.SetWidth(shp.width)
+				if h != shp.height:
+					shape.SetHeight(shp.height)
+				pass
 			else:
-				line.SetBrush(self.brush)
-			line.MakeLineControlPoints(shp.ControlPoints)
-			# add CP array with coordinates
-			if hasattr(shp, 'CPArray'):
-				for pt in shp.CPArray[1:-1]:
-					line.InsertLineControlPoint(point=pt)
-			# set spline mode
-			line.SetSpline(shp.spline)
-			fromShape.AddLine(line, toShape)
-			self.shapes[lnk.ID] = line
-			self.diagram.AddShape(line)
-			line.Show(True)
-			evthandler = LineEvtHandler(self.log, self.frame)
-			evthandler.SetShape(line)
-			evthandler.SetPreviousHandler(line.GetEventHandler())
-			line.SetEventHandler(evthandler)
-			self.Modified = True
-		# link added
-		return line
+				# add new shape
+				obj = self.GetObject(sid)
+				shape = CreateObjectShape(width=shp.width, height=shp.height, baseObj=obj)
+				shape.SetCanvas(self)
+				shape.SetRegionName(obj.ID)
+				shape.SetPen(self.pen)
+				shape.SetBrush(self.brush)
+				shape.AddText(obj.GetTitle())
+				shape.SetTextColour('DecadaShapeText')
+				# perform shape placement
+				shape.SetX(shp.xpos)
+				shape.SetY(shp.ypos)
+				# store shape
+				self.shapes[obj.ID] = shape
+				self.diagram.AddShape(shape)
+				self.diagram.RecentreAll(self.diagram.GetCanvas())
+				shape.Show(True)
+				evthandler = ShapeEvtHandler(self.log, self.frame)
+				evthandler.SetShape(shape)
+				evthandler.SetPreviousHandler(shape.GetEventHandler())
+				shape.SetEventHandler(evthandler)
+				# fix view size
+				limx = shape.GetX() + shape.GetWidth()
+				limy = shape.GetY() + shape.GetHeight()
+				limx = max(self.maxWidth, limx)
+				limy = max(self.maxHeight, limy)
+				self.SetViewSize(limx, limy)
+				self.Modified = True
+				pass
+			pass
+			self.frame.SetStatusProgress(ii)
+			ii += 1
+		# check for lines, add necessary
+		for shp, sid in [(o,i) for i,o in self.storage.graph_data.items() if getattr(o, 'Tag', '') == 'link']:
+			line = self.GetShape(sid)
+			if line is None:
+				# we don't need to do anything with existing line, only create new
+				fromShape = self.shapes.get(shp.start)
+				toShape = self.shapes.get(shp.finish)
+				if fromShape and toShape:
+					line = LinkLine()
+					line.SetCanvas(self)
+					line.SetRegionName(sid)
+					line.SetPen(self.pen)
+					if shp.direct:
+						line.AddArrow(ogl.ARROW_ARROW)
+					elif self.GetViewOption('bidirectional', False):
+						line.AddArrow(ogl.ARROW_ARROW)
+						line.AddArrow(ogl.ARROW_ARROW, ogl.ARROW_POSITION_START)
+					ttl = getattr(shp, 'label', '')
+					if ttl != '':
+						line.AddText(ttl)
+						line.SetBrush(wx.TRANSPARENT_BRUSH)
+					else:
+						line.SetBrush(self.brush)
+					line.MakeLineControlPoints(shp.ControlPoints)
+					# add CP array with coordinates
+					if hasattr(shp, 'CPArray'):
+						for pt in shp.CPArray[1:-1]:
+							line.InsertLineControlPoint(point=pt)
+					# set spline mode
+					line.SetSpline(shp.spline)
+					fromShape.AddLine(line, toShape)
+					self.shapes[sid] = line
+					self.diagram.AddShape(line)
+					line.Show(True)
+					evthandler = LineEvtHandler(self.log, self.frame)
+					evthandler.SetShape(line)
+					evthandler.SetPreviousHandler(line.GetEventHandler())
+					line.SetEventHandler(evthandler)
+					self.Modified = True
+				# if object-shapes exists
+			# if line not exist
+			self.frame.SetStatusProgress(ii)
+			ii += 1
+		# for each link
+		self.frame.SetStatusProgress(objlen)
+		self.Refresh()
+		pass
 
 	def GetShape(self, shp_id):
 		if not shp_id in self.shapes.keys():
@@ -839,10 +865,11 @@ class GraphPanel(NbookPanel):
 		self.Layout()
 
 		self.grapvizMap = {}
+		self.forceRedraw = False
 
 		self.Bind(wx.EVT_MENU, self.OnProperties, id=wx.ID_PREFERENCES)
 		self.Bind(wx.EVT_MENU, self.UpdateView, id=wx.ID_REFRESH)
-		self.Bind(wx.EVT_MENU, self.UpdateView, id=wx.ID_SETUP)
+		self.Bind(wx.EVT_MENU, self.OnSelectLayout, id=wx.ID_SETUP)
 		self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.OnSelectLayout, id=wx.ID_SETUP)
 		self.Bind(wx.EVT_MENU, self.OnLayout, id=wx.ID_FILE2, id2=wx.ID_FILE7)
 		self.Bind(wx.EVT_MENU, self.OnLayout, id=wx.ID_HIGHEST, id2=wx.ID_HIGHEST+10)
@@ -851,6 +878,11 @@ class GraphPanel(NbookPanel):
 		self.Bind(wx.EVT_MENU, self.OnNewLink, id=wx.ID_INDENT)
 		self.Bind(wx.EVT_MENU, self.OnClear, id=wx.ID_CLEAR)
 		# todo: add graphics-only shape, not an object
+
+	def Refresh(self, eb=True, rc=None):
+		self.log('[GraphPanel][dbg] OnRefresh')
+		self.graph.RebuildDrawing()
+		super(GraphPanel, self).Refresh(eraseBackground=eb, rect=rc)
 
 	def _CompileFilters(self):
 		key = self.Title + '_view_filters'
@@ -900,22 +932,37 @@ class GraphPanel(NbookPanel):
 		# that's all
 
 	def OnSelectLayout(self, event):
-		if event.IsDropDownClicked():
+		if hasattr(event, 'IsDropDownClicked') and event.IsDropDownClicked():
+			curr_layout = self.graph.GetViewOption('Layout', 0)
 			tb = event.GetEventObject()
 			tb.SetToolSticky(event.GetId(), True)
 			# create the popup menu
 			cntxMenu = wx.Menu()
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE2, _("&Random layout")) )
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE3, _("&Circular layout")) )
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE4, _("&Shell layout")) )
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE5, _("S&pring layout")) )
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE6, _("Sp&ectral layout")) )
-			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE7, _("&Align to grid")) )
+			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE2, _("&Random layout"), wx.EmptyString, wx.ITEM_CHECK ) )
+			if curr_layout == 0:
+				it.Check(True)
+			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE3, _("&Circular layout"), wx.EmptyString, wx.ITEM_CHECK ) )
+			if curr_layout == 1:
+				it.Check(True)
+			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE4, _("&Shell layout"), wx.EmptyString, wx.ITEM_CHECK ) )
+			if curr_layout == 2:
+				it.Check(True)
+			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE5, _("S&pring layout"), wx.EmptyString, wx.ITEM_CHECK ) )
+			if curr_layout == 3:
+				it.Check(True)
+			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE6, _("Sp&ectral layout"), wx.EmptyString, wx.ITEM_CHECK ) )
+			if curr_layout == 4:
+				it.Check(True)
+			it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_FILE7, _("&Align to grid"), wx.EmptyString, wx.ITEM_CHECK ) )
+			if curr_layout == 5:
+				it.Check(True)
 			# check for the graphviz layouts
 			gvl = pydot.find_graphviz()
 			menuid = wx.ID_HIGHEST + 1
 			for lt in gvl:
-				it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, menuid, _("Graphviz - %s" % lt)) )
+				it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, menuid, _("Graphviz - %s" % lt), wx.EmptyString, wx.ITEM_CHECK ) )
+				if curr_layout == lt:
+					it.Check(True)
 				self.grapvizMap[menuid] = lt
 				menuid += 1
 			# line up our menu with the button
@@ -927,7 +974,7 @@ class GraphPanel(NbookPanel):
 			# make sure the button is "un-stuck"
 			tb.SetToolSticky(event.GetId(), False)
 		else:
-			self.UpdateView(event)
+			self.graph.Refresh()
 
 	def OnFilter(self, event):
 		dlg = LayerFilterDlg(self)
@@ -968,11 +1015,11 @@ class GraphPanel(NbookPanel):
 		obj_curr = 0
 		self.graph.Freeze()
 		#self.graph.diagram.SetQuickEditMode(True)
-		frame.SetStatus(_("Draw objects"))
+		frame.SetStatus(_("Collect objects"))
 		frame.SetStatusProgressRange(obj_len)
 		for o in objlist:
 			shp = prev_view.get(o.ID)
-			if shp:
+			if shp and not self.forceRedraw:
 				self.graph.AddObjectShape(o,shapeTmpl = shp)
 			else :
 				self.graph.AddObjectShape(o)
@@ -986,7 +1033,7 @@ class GraphPanel(NbookPanel):
 		lnklist = Deca.Utility.Filter(self.link_filter, lnklist)
 		obj_len = len(lnklist)
 		obj_curr = 0
-		frame.SetStatus(_("Draw links"))
+		frame.SetStatus(_("Collect links"))
 		frame.SetStatusProgressRange(obj_len)
 		for l in lnklist:
 			self.graph.AddLinkShape(l)
@@ -995,15 +1042,16 @@ class GraphPanel(NbookPanel):
 			wx.Yield()
 		lt_mode = self.graph.GetViewOption('Layout', 0)
 		self.log("layout mode = %s" % lt_mode)
+		frame.SetStatus(_("Layout view"))
+		frame.SetStatus(_("Perform layout"))
+		frame.SetStatusProgress(0)
 		if type(lt_mode) == int:
-			nxgraph = NxLayout.Deca2Nx(self.graph.storage.graph_data)
-			NxLayout.Nx2Layout(nxgraph, self.graph, lt_mode)
+			NxLayout.Layout(self.graph.storage.graph_data, self.graph, lt_mode)
 		elif isinstance(lt_mode, (str, unicode)):
-			dotgraph = DotLayout.Deca2Dot(self.graph.storage.graph_data, mode = lt_mode)
-			DotLayout.Dot2Layout(dotgraph, self.graph)
+			DotLayout.Layout(self.graph.storage.graph_data, self.graph, lt_mode)
 		#self.graph.diagram.SetQuickEditMode(False)
 		self.graph.Thaw()
-		self.graph.Update()
+		self.Refresh()
 		frame.SetStatus(_("Ready"))
 
 	def OnProperties(self, event):
@@ -1103,7 +1151,6 @@ class GraphPanel(NbookPanel):
 	def AddLink(self, fromObj, toObj, direct=False):
 		lnk = self.graph.CreateLink(fromObj, toObj, direct)
 		self.graph.AddLinkShape(lnk)
-
 		self.Refresh()
 		Deca.world.Modified = True
 		if self.graph.propsGrid:

@@ -83,20 +83,17 @@ def Nx2Layout(nx_graph, layerView, pos=None):
             pos = 0
         pos = __layout_func__[pos](nx_graph)
     layerView.SetViewSize(vw + bw, vh + bh)
-    dc = wx.ClientDC(layerView)
-    layerView.PrepareDC(dc)
     bw /= 2
     bh /= 2
     for obj,coord in pos.items():
         #wx.GetApp().log("[Nx2Layout][dbg] %s: %s" % (obj,coord))
         x = vw * coord[0] + bw
         y = vh * coord[1] + bh
-        shp = layerView.shapes.get(uuid.UUID(obj), None)
-        #wx.GetApp().log("[Nx2Layout][dbg] Shape: %s" % shp)
-        if shp:
-            shp.Move(dc, x, y)
         shp = layerView.storage.graph_data.get(uuid.UUID(obj), None)
         if shp:
             shp.xpos = x
             shp.ypos = y
-    layerView.Refresh()
+
+def Layout(layerData, layerView, mode):
+    nxgraph = Deca2Nx(layerData)
+    Nx2Layout(nxgraph, layerView, mode)

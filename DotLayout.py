@@ -14,6 +14,7 @@ import pydot
 import subprocess
 
 def Deca2Dot(decaGraph, force=True, mode='dot'):
+    wx.GetApp().log('[PyDot][dbg] build %s graph' % mode)
     G = pydot.Graph()
     G.set('layout', mode)
     G.set('overlap', False)
@@ -64,27 +65,23 @@ def Dot2Layout(dotcode, layerView):
     try:
         xo,yo,xm,ym = (float(e) for e in bb.replace('"','').split(','))
         layerView.SetViewSize(xm - xo, ym - yo)
-        dc = wx.ClientDC(layerView)
-        layerView.PrepareDC(dc)
-        ii = 0
         for nd in G.get_nodes():
             attrs = nd.get_attributes()
             if attrs.get('_draw_') and not attrs.get('bb'):
                 nm = nd.get_name().replace('"', '')
-                shp = layerView.shapes.get(uuid.UUID(nm), None)
                 w = float(attrs.get('width', '"1"').replace('"', '')) * 72
                 h = float(attrs.get('height', '"1"').replace('"', '')) * 72
                 pos = attrs.get('pos', '"100,100"').replace('"', '')
                 px,py = (float(e) for e in pos.split(','))
-                if shp:
-                    x = px - xo
-                    y = ym - py
-                    shp.Move(dc, x, y)
+                x = px - xo
+                y = ym - py
                 # if shape
                 shp = layerView.storage.graph_data.get(uuid.UUID(nm), None)
                 if shp:
                     shp.xpos = x
                     shp.ypos = y
+                    shp.width = w
+                    shp.height = h
            # if node
         # for nodes
     except Exception as cond:
@@ -92,3 +89,7 @@ def Dot2Layout(dotcode, layerView):
     finally:
         layerView.Refresh()
     return G
+
+def Layout(layerData, layerView, mode):
+    dotgraph = Deca2Dot(layerData, mode=mode)
+    Dot2Layout(dotgraph, layerView)
