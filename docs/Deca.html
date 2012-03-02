@@ -603,10 +603,25 @@ the corresponding arguments and <tt class="xref py py-class docutils literal"><s
 <span id="world-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">World</span></tt> Module<a class="headerlink" href="#module-Deca.World" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="Deca.World.DecaWorld">
-<em class="property">class </em><tt class="descclassname">Deca.World.</tt><tt class="descname">DecaWorld</tt><big>(</big><em>filename=None</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">Deca.World.</tt><tt class="descname">DecaWorld</tt><big>(</big><em>filename=None</em>, <em>**argsdict</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DECA world object.</p>
 <p>This object controls the database and the file structure for the DECA world.
 The constructor argument <em>filename</em> allows restore previously saved world from file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Attribute ID_Repository:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Internal layer to store repository: templates, objects
+and shapes. It always exists, and can&#8217;t be removed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Attribute ID_Configuration:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">Internal pseudo-layer to store configuration data.
+This storage is just the dictionary to save arbitrary data in the world&#8217;s storage.
+It always exists, and can&#8217;t be removed.</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="Deca.World.DecaWorld.AttachmentsPath">
 <tt class="descname">AttachmentsPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.AttachmentsPath" title="Permalink to this definition">¶</a></dt>
@@ -710,26 +725,27 @@ the new layer created.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of string for names existing shapes</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of string for names of existing shapes</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="Deca.World.DecaWorld.HgRepository">
+<tt class="descname">HgRepository</tt><a class="headerlink" href="#Deca.World.DecaWorld.HgRepository" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mercurial repository for source control</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="Deca.World.DecaWorld.ID_Configuration">
 <tt class="descname">ID_Configuration</tt><em class="property"> = '&#64;configuration'</em><a class="headerlink" href="#Deca.World.DecaWorld.ID_Configuration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Internal pseudo-layer to store configuration data.</p>
-<p>This storage is just the dictionary to save arbitrary data in the world&#8217;s storage.
-It always exists, and can&#8217;t be removed.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="Deca.World.DecaWorld.ID_Repository">
 <tt class="descname">ID_Repository</tt><em class="property"> = '&#64;repository'</em><a class="headerlink" href="#Deca.World.DecaWorld.ID_Repository" title="Permalink to this definition">¶</a></dt>
-<dd><p>Internal layer to store repository: templates, objects and shapes. It always exists,
-and can&#8217;t be removed.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="Deca.World.DecaWorld.PixmapsPath">
@@ -747,6 +763,14 @@ and can&#8217;t be removed.</p>
 <dt id="Deca.World.DecaWorld.ResultsPath">
 <tt class="descname">ResultsPath</tt><a class="headerlink" href="#Deca.World.DecaWorld.ResultsPath" title="Permalink to this definition">¶</a></dt>
 <dd><p>String for current used OS path there reports results are stored</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Deca.World.DecaWorld.Rollback">
+<tt class="descname">Rollback</tt><big>(</big><em>self</em><big>)</big><a class="headerlink" href="#Deca.World.DecaWorld.Rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback current transaction.</p>
+<p>Undos all changes in database since last save
+Note: this operation can&#8217;t be reversed.</p>
 </dd></dl>
 
 <dl class="method">
