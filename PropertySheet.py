@@ -115,7 +115,7 @@ class PropGridBlock ( wx.Panel ):
 		if self.propGrid.AppendRows() :
 			idx = self.propGrid.GetNumberRows() - 1
 			self.propGrid.SetRowLabelValue(idx, label)
-			self.propGrid.SetCellValue(idx, 0, str(value))
+			self.propGrid.SetCellValue(idx, 0, unicode(value))
 		# end of row addition
 	
 	# Virtual event handlers, overide them in your derived class
