@@ -13,6 +13,9 @@ import uuid
 import pydot
 import subprocess
 import platform
+import codecs
+
+_enc = codecs.getencoder("utf-8")
 
 def Deca2Dot(decaGraph, force=True, mode='dot'):
     wx.GetApp().log('[PyDot][dbg] build %s graph' % mode)
@@ -27,7 +30,9 @@ def Deca2Dot(decaGraph, force=True, mode='dot'):
                 node.set('pos', "%f,%f" % (s.xpos,s.ypos))
             node.set('width', float(s.width) / 72)
             node.set('height', float(s.height) / 72)
-            node.set('label', getattr(s, 'label', str(s.ID)))
+            lb = getattr(s, 'label', str(s.ID))
+            if lb.strip() != '':
+                node.set('label', lb)
             G.add_node(node)
         if s.Tag == 'link':
             st = str(s.start)
@@ -104,5 +109,5 @@ def Dot2Layout(dotcode, layerView):
     return G
 
 def Layout(layerData, layerView, mode):
-    dotgraph = Deca2Dot(layerData, mode=mode)
+    dotgraph = _enc(Deca2Dot(layerData, mode=mode))[0]
     Dot2Layout(dotgraph, layerView)
