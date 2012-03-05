@@ -3,8 +3,8 @@
 # Name:        Logger
 # Purpose:     Logging abilities for the framework
 #
-# Copyright:   (c) Triplika 2011
-# Licence:     LGPL
+# Copyright:   (c) Stinger 2011
+# Licence:     Private
 #-------------------------------------------------------------------------------
 import os
 import sys
