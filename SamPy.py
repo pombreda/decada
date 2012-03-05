@@ -38,7 +38,7 @@ import PropertySheet
 import HtmlView
 import ImgView
 from AboutDlg import AboutBox
-
+import Logger
 import Deca
 
 import locale
@@ -50,28 +50,9 @@ __revision__ = "$Revision: 0 $"
 
 assertMode = wx.PYAPP_ASSERT_DIALOG
 
-class Log:
-	def __init__(self, frame = None) :
-		self.Frame = frame
-
-	def WriteText(self, text):
-		if text.startswith("[ed_txt]") : return
-		if text.startswith("[pycomp]") : return
-		if text[-1:] == '\n':
-			text = text[:-1]
-		#wx.LogMessage(text)
-		try:
-			if self.Frame is not None:
-				self.Frame.LogMessage(text)
-		except Exception:
-			pass
-
-	write = WriteText
-	__call__ = WriteText
-
-	def flush(self):
-		pass
-
+###########################################################################
+## main Frame class
+###########################################################################
 class PyAUIFrame(wx.Frame):
 
 	ID_CreateWorld = wx.NewId()
@@ -99,7 +80,8 @@ class PyAUIFrame(wx.Frame):
 											wx.SUNKEN_BORDER |
 											wx.CLIP_CHILDREN):
 
-		self.log = Log(self)
+		self.log = wx.GetApp().GetLog()
+		self.log.frame = self
 		#self.log.write("Images will now be provided by SampoArt\n")
 		wx.ArtProvider.PushProvider(ed_art.EditraArt())
 
@@ -869,7 +851,7 @@ class RunApp(wx.App):
 	def __init__(self, name):
 		self.name = name
 		self.useShell = True
-		self.log = Log()
+		self.log = Logger.Log()
 		self.curr_dir = os.path.dirname(sys.argv[0])
 		if self.curr_dir == '':
 			self.curr_dir = os.path.curdir

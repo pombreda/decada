@@ -958,14 +958,16 @@ class GraphPanel(NbookPanel):
 				it.Check(True)
 			# check for the graphviz layouts
 			gvl = pydot.find_graphviz()
-			menuid = wx.ID_HIGHEST + 1
-			for lt in gvl:
-				it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, menuid, _("Graphviz - %s" % lt), wx.EmptyString, wx.ITEM_CHECK ) )
-				if curr_layout == lt:
-					it.Check(True)
-				self.grapvizMap[menuid] = lt
-				menuid += 1
-			# line up our menu with the button
+			if gvl is not None:
+				menuid = wx.ID_HIGHEST + 1
+				for lt in gvl:
+					it = cntxMenu.AppendItem( wx.MenuItem( cntxMenu, menuid, _("Graphviz - %s" % lt), wx.EmptyString, wx.ITEM_CHECK ) )
+					if curr_layout == lt:
+						it.Check(True)
+					self.grapvizMap[menuid] = lt
+					menuid += 1
+				# line up our menu with the button
+			# if graphviz found
 			rect = tb.GetToolRect(event.GetId())
 			pt = tb.ClientToScreen(rect.GetBottomLeft())
 			pt = self.ScreenToClient(pt)
