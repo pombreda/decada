@@ -13,6 +13,7 @@
 import os
 import imp
 import wx
+from wx._core import wxEVT_MOUSEWHEEL
 import wx.lib.agw.aui as aui
 import Deca
 import NxLayout
@@ -154,9 +155,10 @@ class LineEvtHandler(ogl.ShapeEvtHandler):
 		cntxMenu.AppendSeparator()
 		cntxMenu.AppendItem( wx.MenuItem( cntxMenu, wx.ID_DELETE, _("Delete"), wx.EmptyString, wx.ITEM_NORMAL ))
 		# append scripts if any
-		pt = wx.Point(int(x), int(y))
-		pt.x *= canvas.GetScaleX()
-		pt.y *= canvas.GetScaleY()
+		vx, vy = canvas.GetRealPosition(x, y)
+		pt = wx.Point(int(vx), int(vy))
+		#pt.x *= canvas.GetScaleX()
+		#pt.y *= canvas.GetScaleY()
 		canvas.PopupMenu( cntxMenu, pos=pt )
 		pass
 
@@ -379,9 +381,10 @@ class ShapeEvtHandler(ogl.ShapeEvtHandler):
 				# foreach script
 			# if any scripts found
 		# if DecaObject
-		pt = wx.Point(int(x), int(y))
-		pt.x *= canvas.GetScaleX()
-		pt.y *= canvas.GetScaleY()
+		vx, vy = canvas.GetRealPosition(x, y)
+		pt = wx.Point(int(vx), int(vy))
+		#pt.x *= canvas.GetScaleX()
+		#pt.y *= canvas.GetScaleY()
 		canvas.PopupMenu( cntxMenu, pos=pt )
 		pass
 
@@ -511,8 +514,11 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 			self.Thaw()
 		# objects redraw done
 		self.Bind(wx.EVT_MENU, self.OnScript)
-		self.Bind(wx.EVT_MOUSEWHEEL, self.OnWheel)
+		#self.Bind(wx.EVT_MOUSEWHEEL, self.OnWheel)
 		wx.CallAfter(self.Update)
+
+	def AcceptsFocus(self):
+		return True
 
 	def SetViewSize(self, maxX, maxY):
 		self.maxWidth  = maxX
@@ -536,6 +542,13 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 			hei = self.storage.graph_data['@view'].height * yscale
 			self.SetScrollbars(pixelsPerUnitX=20, pixelsPerUnitY=20, noUnitsX=wid/20, noUnitsY=hei/20)
 			self.storage.graph_data['@view'].scale = xscale
+
+	def OnMouseEvent(self, evt):
+		#self.log('[LayerView][dbg] MouseEvent: %s' % evt)
+		self.SetFocus()
+		if evt.EventType == wxEVT_MOUSEWHEEL:
+			self.OnWheel(evt)
+		ogl.ShapeCanvas.OnMouseEvent(self, evt)
 
 	def OnWheel(self, event):
 		dir = event.GetWheelRotation()
@@ -750,9 +763,14 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 					item_id += 1
 			# foreach script
 		# if any scripts found
-		pt = wx.Point(int(x), int(y))
+		vx, vy = self.GetRealPosition(x, y)
+		pt = wx.Point(int(vx), int(vy))
 		self.PopupMenu( cntxMenu, pos=pt )
 		pass
+
+	def GetRealPosition(self, x, y):
+		sc = self.storage.graph_data['@view'].scale
+		return self.CalcScrolledPosition(x * sc, y * sc)
 
 	def OnScript(self, event):
 		evt_id = event.GetId()

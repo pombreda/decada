@@ -111,9 +111,11 @@ class EditIterable ( wx.Dialog ):
 		self.gridData.ClearGrid()
 		if type(self.value) == list or isinstance(self.value, PersistentList) or \
 					type(self.value) == set or type(self.value) == tuple :
-			self.gridData.AppendCols(1)
+			self.gridData.AppendCols(2)
 			self.gridData.SetColSize( 0, width=200 )
+			self.gridData.SetColSize( 1, width=150 )
 			self.gridData.SetColLabelValue(0, _("Item"))
+			self.gridData.SetColLabelValue(1, _("Type"))
 			self.gridData.AppendRows(len(self.value))
 			row = 0
 			for i in self.value:
@@ -121,13 +123,16 @@ class EditIterable ( wx.Dialog ):
 				self.gridData.SetCellRenderer(row, 0, ToStringRenderer())
 				self.gridData.SetCellEditor(row, 0, ToStringEditor())
 				row += 1
+			self.gridData.SetTypeColumn(1)
 
 		elif type(self.value) == dict or isinstance(self.value, PersistentMapping) :
-			self.gridData.AppendCols(2)
+			self.gridData.AppendCols(3)
 			self.gridData.SetColSize( 0, width=100 )
-			self.gridData.SetColSize( 0, width=150 )
+			self.gridData.SetColSize( 1, width=150 )
+			self.gridData.SetColSize( 2, width=150 )
 			self.gridData.SetColLabelValue(0, _("Key"))
 			self.gridData.SetColLabelValue(1, _("Value"))
+			self.gridData.SetColLabelValue(2, _("Type"))
 			self.gridData.AppendRows(len(self.value))
 			row = 0
 			for k,v in self.value.items():
@@ -138,10 +143,13 @@ class EditIterable ( wx.Dialog ):
 				self.gridData.SetCellRenderer(row, 1, ToStringRenderer())
 				self.gridData.SetCellEditor(row, 1, ToStringEditor())
 				row += 1
+			self.gridData.SetTypeColumn(2)
 		else:
-			self.gridData.AppendCols(1)
+			self.gridData.AppendCols(2)
 			self.gridData.SetColSize( 0, width=250 )
+			self.gridData.SetColSize( 1, width=150 )
 			self.gridData.SetColLabelValue(0, _("Item"))
+			self.gridData.SetColLabelValue(1, _("Type"))
 			self.gridData.AppendRows(1)
 			self.gridData.SetCellValue(0, 0, self.value)
 			self.gridData.SetCellRenderer(0, 0, ToStringRenderer())
@@ -149,6 +157,7 @@ class EditIterable ( wx.Dialog ):
 			# disable buttons
 			self.btnAddRow.Disable()
 			self.btnDelRow.Disable()
+			self.gridData.SetTypeColumn(1)
 		pass
 
 	def GetData(self):
@@ -290,7 +299,7 @@ class CellEditor ( wx.Control ):
 			text = _("<tuple>: %i elem(s)") % len(self.value)
 			self.txtView.Disable()
 		else:
-			text = str(self.value)
+			text = unicode(self.value)
 			self.txtView.Enable()
 			self.btn.Hide()
 			self._easyMode = True
@@ -465,7 +474,7 @@ class ToStringRenderer(gridlib.PyGridCellRenderer):
 		dc.SetFont(attr.GetFont())
 		dc.SetTextForeground(attr.GetTextColour())
 		val = grid.GetCellRawValue(row, col)
-		text = str(val)
+		text = unicode(val)
 		if type(val) == list or isinstance(val, PersistentList) :
 			text = _("list(%i)%s") % (len(val), val)
 		if type(val) == dict or isinstance(val, PersistentMapping) :
@@ -478,11 +487,11 @@ class ToStringRenderer(gridlib.PyGridCellRenderer):
 		y = rect.y + 1
 		dc.DrawText(text, x, y)
 
-#	def GetBestSize(self, grid, attr, dc, row, col):
-#		text = grid.GetCellValue(row, col)
-#		dc.SetFont(attr.GetFont())
-#		w, h = dc.GetTextExtent(text)
-#		return wx.Size(w, h)
+	#def GetBestSize(self, grid, attr, dc, row, col):
+	#	text = grid.GetCellValue(row, col)
+	#	dc.SetFont(attr.GetFont())
+	#	w, h = dc.GetTextExtent(text)
+	#	return wx.Size(w, h)
 
 	def Clone(self):
 		return ToStringRenderer()
@@ -496,6 +505,7 @@ class CustomGrid (gridlib.Grid ):
 		gridlib.Grid.__init__(self, parent, id, pos, size, style)
 		self._raw_data = []
 		self.colNums = 0
+		self.typeColumn = None
 		self.activeEditor = None
 		self.Bind(gridlib.EVT_GRID_EDITOR_CREATED, self.OnCreateEditor)
 		self.Bind(gridlib.EVT_GRID_EDITOR_SHOWN, self.OnStartEdit)
@@ -505,6 +515,30 @@ class CustomGrid (gridlib.Grid ):
 		self.colNums = numCols
 		self._raw_data = [[None]*self.colNums for i in range(numRows)]
 		return gridlib.Grid.CreateGrid(self, numRows, numCols, selmode)
+
+	def SetTypeColumn(self, colNum = None):
+		self.typeColumn = colNum
+		if self.typeColumn is not None and self.typeColumn > 0:
+			for row in self._raw_data:
+				# update type information according previous column
+				row[self.typeColumn] = type(row[self.typeColumn - 1])
+				# set cell renderer and editor to the Choice control with types list
+				pass
+		pass
+
+	def GetCellType(self, row, col):
+		cellType = None
+		if self.typeColumn is not None and col == (self.typeColumn - 1):
+			# get from type informator
+			cellType = self._raw_data[row][self.typeColumn]
+		else:
+			# get type from value itself
+			cellType = type(self._raw_data[row][col])
+		return cellType
+
+	def AppendCols(self, numCols=1, updateLabels=True):
+		self.colNums += numCols
+		return gridlib.Grid.AppendCols(self, numCols, updateLabels)
 
 	def AppendRows(self, numRows=1, updateLabels=True):
 		self._raw_data.extend([[None]*self.colNums for i in range(numRows)])
@@ -523,7 +557,10 @@ class CustomGrid (gridlib.Grid ):
 		if len(self._raw_data[row]) <= col:
 			self._raw_data[row].extend([None for i in range(col - len(self._raw_data[row]) + 1)])
 		self._raw_data[row][col] = s
-		gridlib.Grid.SetCellValue(self, row, col, str(s))
+		if self.typeColumn is not None and col == (self.typeColumn - 1):
+			# get from type informator
+			self._raw_data[row][self.typeColumn] = type(s)
+		gridlib.Grid.SetCellValue(self, row, col, unicode(s))
 
 	def OnKeyDown(self, evt):
 		if evt.GetKeyCode() != wx.WXK_RETURN:

@@ -60,7 +60,9 @@ def HgPush(repo, frame, force=False, insecure=True):
 			except Exception as cond:
 				wx.GetApp().log("[SourceControl] err: %s" % cond)
 			# committed
+			dlg.Destroy()
 		else:
+			dlg.Destroy()
 			if not status:
 				repo.SwitchToRemote()
 			return
@@ -71,9 +73,11 @@ def HgPush(repo, frame, force=False, insecure=True):
 			dlg.SetValue("Auto-commit")
 			if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
 				message = dlg.GetValue()
+				dlg.Destroy()
 			else:
 				if status:
 					repo.SwitchToLocal()
+				dlg.Destroy()
 				return
 		try:
 			repo.commit(message)
@@ -91,6 +95,7 @@ def HgPush(repo, frame, force=False, insecure=True):
 		if dlg.ShowModal() == wx.ID_OK and dlg.GetValue() != '':
 			remote_repo = dlg.GetValue()
 			Profile_Set('HG_REPOSITORY', remote_repo)
+		dlg.Destroy()
 	if remote_repo is not None:
 		repo.push(remote_repo, force=force, insecure=insecure)
 	if status:

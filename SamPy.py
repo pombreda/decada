@@ -81,7 +81,6 @@ class PyAUIFrame(wx.Frame):
 											wx.CLIP_CHILDREN):
 
 		self.log = wx.GetApp().GetLog()
-		self.log.frame = self
 		#self.log.write("Images will now be provided by SampoArt\n")
 		wx.ArtProvider.PushProvider(ed_art.EditraArt())
 
@@ -174,11 +173,11 @@ class PyAUIFrame(wx.Frame):
 						  Name("explorer").Caption("World").
 						  Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True))
 
-		self.logger = wx.TextCtrl(self,-1, "", wx.Point(0, 0), wx.Size(150, 90),
-						   wx.NO_BORDER | wx.TE_MULTILINE)
+		self.logger = Logger.LogView(self)
 		self._mgr.AddPane(self.logger, aui.AuiPaneInfo().
 						  Name("logger").Caption("Logs & Messages").
 						  Bottom().Layer(1).Position(1).CloseButton(True).MaximizeButton(True))
+		self.log.Frame = self.logger
 
 		# create some center panes
 		self.nbook = aui.AuiNotebook(self)
@@ -289,14 +288,6 @@ class PyAUIFrame(wx.Frame):
 			if page.Tag != "Console":
 				page.SetTabIndex(idx)
 
-	#noinspection PyBroadException
-	def LogMessage(self, text):
-		#skip mode
-		try:
-			self.logger.AppendText(text + "\n")
-		except Exception:
-			pass
-
 	def OnSize(self, evt):
 		evt.GetId()
 		self.Reposition()  # for normal size events
@@ -371,7 +362,7 @@ class PyAUIFrame(wx.Frame):
 					if Deca.world.HgRepository.IsWdChanged:
 						Deca.world.HgRepository.commit('Automatic sync to server on startup')
 				except Exception as cond:
-					self.LogMessage("[Source control][err] Synchronize failed: %s" % cond)
+					self.log("[Source control][err] Synchronize failed: %s" % cond)
 				finally:
 					Deca.world.HgRepository.SwitchToLocal()
 
@@ -582,7 +573,7 @@ class PyAUIFrame(wx.Frame):
 
 	def DispatchToControl(self, evt):
 		chld = self.nbook.GetPage(self.nbook.GetSelection())
-		#self.LogMessage("[dbg] dispatch event %i" % evt.GetId())
+		#self.log("[dbg] dispatch event %i" % evt.GetId())
 		if chld.Tag == "Text":
 			chld.DispatchToControl(evt)
 		if evt.GetId() == wx.ID_SAVE:
@@ -744,10 +735,7 @@ class PyAUIFrame(wx.Frame):
 		for idx in xrange(self.nbook.GetPageCount()):
 			self.nbook.GetPage(idx).UpdateColors(sm)
 		# set logger window colors
-		self.logger.SetBackgroundColour(sm.GetDefaultBackColour())
-		self.logger.SetFont(sm.GetDefaultFont())
-		self.logger.SetForegroundColour(sm.GetDefaultForeColour())
-		self.logger.Refresh()
+		self.logger.UpdateColors(sm)
 		# set explorer colors
 		self.explorer.UpdateColors(sm)
 		#self.explorer.SetHilightFocusColour()
@@ -903,7 +891,6 @@ class RunApp(wx.App):
 
 		self.SetTopWindow(frame)
 		self.frame = frame
-		self.log.Frame = frame
 
 		return True
 

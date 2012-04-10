@@ -12,6 +12,7 @@
 #!/usr/bin/env python
 import wx
 import wx.grid
+import CustomGrid as cgrid
 
 from Editra.src import ed_style
 import gettext
@@ -52,7 +53,8 @@ class PropGridBlock ( wx.Panel ):
 
 		bSizer.Add( bTitleSizer, 0, wx.EXPAND, 0 )
 
-		self.propGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		#self.propGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.propGrid = cgrid.CustomGrid( self, wx.ID_ANY, style=0 )
 
 		# Grid
 		self.propGrid.CreateGrid( 0, 1 )
@@ -115,7 +117,9 @@ class PropGridBlock ( wx.Panel ):
 		if self.propGrid.AppendRows() :
 			idx = self.propGrid.GetNumberRows() - 1
 			self.propGrid.SetRowLabelValue(idx, label)
-			self.propGrid.SetCellValue(idx, 0, unicode(value))
+			self.propGrid.SetCellValue(idx, 0, value) #unicode(value))
+			self.propGrid.SetCellRenderer(idx, 0, cgrid.ToStringRenderer())
+			self.propGrid.SetCellEditor(idx, 0, cgrid.ToStringEditor())
 		# end of row addition
 	
 	# Virtual event handlers, overide them in your derived class
@@ -127,6 +131,7 @@ class PropGridBlock ( wx.Panel ):
 	def OnTitleClick( self, event ):
 		if self.propGrid.IsShown() :
 			#self.stMark.Label = unichr(0x25b6)
+			self.propGrid.DisableCellEditControl()
 			self.propGrid.Hide()
 		else :
 			#self.stMark.Label = unichr(0x25bc)
@@ -188,6 +193,7 @@ class PropGridPanel ( wx.Panel ):
 
 		# Connect Events
 		self.Bind( wx.EVT_SIZE, self.OnSheetSize )
+		self.Bind( wx.EVT_CLOSE, self.OnClose)
 
 	def __del__( self ):
 		# Disconnect Events
@@ -222,6 +228,7 @@ class PropGridPanel ( wx.Panel ):
 
 	def UpdateGrid(self):
 		if self.propObj is not None :
+			self.CloseEditors()
 			self.bDictSizer.Clear(True)
 			self.blocks = []
 			props = self.propObj.GetPropList(self)
@@ -245,3 +252,11 @@ class PropGridPanel ( wx.Panel ):
 		for block in self.blocks :
 			if isinstance(block, PropGridBlock):
 				block.SendSizeEvent()
+
+	def OnClose(self, evt):
+		self.CloseEditors()
+		evt.Skip()
+		
+	def CloseEditors(self):
+		for block in self.blocks:
+			block.propGrid.DisableCellEditControl()
