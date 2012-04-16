@@ -291,11 +291,13 @@ class ShapeEvtHandler(ogl.ShapeEvtHandler):
 		if not shape.Selected():
 			self.OnLeftClick(x, y, keys, attachment)
 
+		scpos = canvas.GetViewStart()
 		limx = shape.GetX() + shape.GetWidth()
 		limy = shape.GetY() + shape.GetHeight()
 		limx = max(canvas.maxWidth, limx)
 		limy = max(canvas.maxHeight, limy)
 		canvas.SetViewSize(limx, limy)
+		canvas.Scroll(scpos[0], scpos[1])
 
 		objID = shape.GetRegionName()
 		canvas.storage.graph_data[objID].xpos = shape.GetX()
@@ -311,11 +313,13 @@ class ShapeEvtHandler(ogl.ShapeEvtHandler):
 		canvas = shape.GetCanvas()
 		shape.Recentre(self.GetShape().GetCanvas())
 
+		scpos = canvas.GetViewStart()
 		limx = shape.GetX() + shape.GetWidth()
 		limy = shape.GetY() + shape.GetHeight()
 		limx = max(canvas.maxWidth, limx)
 		limy = max(canvas.maxHeight, limy)
 		canvas.SetViewSize(limx, limy)
+		canvas.Scroll(scpos[0], scpos[1])
 
 		objID = shape.GetRegionName()
 		canvas.storage.graph_data[objID].width = shape.GetWidth()
@@ -523,7 +527,6 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 	def SetViewSize(self, maxX, maxY):
 		self.maxWidth  = maxX
 		self.maxHeight = maxY
-		self.SetScrollbars(pixelsPerUnitX=20, pixelsPerUnitY=20, noUnitsX=self.maxWidth/20, noUnitsY=self.maxHeight/20)
 		if '@view' in self.storage.graph_data.keys():
 			self.storage.graph_data['@view'].width = maxX
 			self.storage.graph_data['@view'].height = maxY
@@ -533,6 +536,8 @@ class LayerView(ogl.ShapeCanvas, Deca.Layer):
 			shi.width = maxX
 			shi.height = maxY
 			self.storage.graph_data['@view'] = shi
+		scale = getattr(self.storage.graph_data['@view'], 'scale', 1.0)
+		self.SetScale(scale, scale)
 
 	def SetScale(self, xscale, yscale):
 		yscale = xscale
