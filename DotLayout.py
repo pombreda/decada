@@ -32,6 +32,8 @@ def Deca2Dot(decaGraph, force=True, mode='dot'):
             node.set('height', float(s.height) / 72)
             lb = getattr(s, 'label', str(s.ID))
             if lb.strip() != '':
+                if lb.find(':') > -1:
+                    lb = '"%s"' % lb
                 node.set('label', lb)
             G.add_node(node)
         if s.Tag == 'link':
@@ -45,13 +47,16 @@ def Deca2Dot(decaGraph, force=True, mode='dot'):
             G.add_edge(lnk)
     return G.to_string()
 
-def Dot2Layout(dotcode, layerView):
+def Dot2Layout(dotcode, layerView, mode='dot'):
     G = None
     try:
         if platform.platform().lower().find('windows') != -1:
             pdex = pydot.find_graphviz()
+            cmd = pdex['dot']
+            if pdex.has_key(mode):
+                cmd = pdex[mode]
             p = subprocess.Popen(
-                [pdex['dot'], '-Txdot'],
+                [cmd, '-Txdot'],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -110,4 +115,4 @@ def Dot2Layout(dotcode, layerView):
 
 def Layout(layerData, layerView, mode):
     dotgraph = _enc(Deca2Dot(layerData, mode=mode))[0]
-    Dot2Layout(dotgraph, layerView)
+    Dot2Layout(dotgraph, layerView, mode)
